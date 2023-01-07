@@ -10,9 +10,14 @@ class Button(pygame.sprite.Sprite):
         self.counter = counter
         self.prevert_sprite_group = movable_sprites
 
-        self.image = load_image("button.png")
+        # Load all pictures of sprite
+        self.upped_image = load_image("button.png")
+        
+        self.image = self.upped_image # Variable for storing the selected image
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
+
+        # Set start position of sprite
         self.rect.center = (
             constants.RESOLUTION[0] * 0.5,
             constants.RESOLUTION[1] * 0.5,

@@ -2,7 +2,7 @@ import sys
 import os
 import pygame
 
-
+# Simple func for upload images into the sprite classes etc.
 def load_image(name, colorkey=None):
     fullname = os.path.join("images", name)
     if not os.path.isfile(fullname):

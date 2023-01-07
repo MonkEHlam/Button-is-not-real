@@ -15,6 +15,7 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     screen.fill("white")
 
+    # Create every base sprites
     counter = Counter_class.Counter(all_sprites, screen)
     button = Button_class.Button(all_sprites, screen, counter, movable_sprites)
     screwdriver = Screwdriver_class.Screwdriver(movable_sprites, screen)
@@ -28,8 +29,11 @@ if __name__ == "__main__":
             screen.fill("white")
             all_sprites.update(event)
             movable_sprites.update(event)
+
         all_sprites.draw(screen)
         movable_sprites.draw(screen)
+
+        # The development point of ending score
         if counter.get_score() == 40:
             running = False
         clock.tick(constants.FPS)
