@@ -12,8 +12,8 @@ class Button(pygame.sprite.Sprite):
 
         # Load all pictures of sprite
         self.upped_image = load_image("button.png")
-        
-        self.image = self.upped_image # Variable for storing the selected image
+
+        self.image = self.upped_image  # Variable for storing the selected image
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -27,6 +27,7 @@ class Button(pygame.sprite.Sprite):
         if (
             args
             and args[0].type == pygame.MOUSEBUTTONDOWN
+            and args[0].button == 1
             and self.rect.collidepoint(args[0].pos)
             and not pygame.sprite.spritecollideany(self, self.prevert_sprite_group)
         ):

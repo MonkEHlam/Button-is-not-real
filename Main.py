@@ -2,13 +2,16 @@ import pygame
 import Button_class
 import Counter_class
 import Screwdriver_class
+import Blink_class
 import constants
 from load_image_func import load_image
+
 
 
 if __name__ == "__main__":
     pygame.init()
     all_sprites = pygame.sprite.Group()
+    blink_group = pygame.sprite.Group()
     movable_sprites = pygame.sprite.Group()
     size = width, height = constants.RESOLUTION
     screen = pygame.display.set_mode(size)
@@ -19,6 +22,7 @@ if __name__ == "__main__":
     counter = Counter_class.Counter(all_sprites, screen)
     button = Button_class.Button(all_sprites, screen, counter, movable_sprites)
     screwdriver = Screwdriver_class.Screwdriver(movable_sprites, screen)
+    blink = Blink_class.Blink(blink_group, screen)
 
     running = True
     while running:
@@ -29,9 +33,10 @@ if __name__ == "__main__":
             screen.fill("white")
             all_sprites.update(event)
             movable_sprites.update(event)
-
+            blink_group.update(event)
         all_sprites.draw(screen)
         movable_sprites.draw(screen)
+        blink_group.draw(screen)
 
         # The development point of ending score
         if counter.get_score() == 40:
