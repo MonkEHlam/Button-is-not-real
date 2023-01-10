@@ -20,10 +20,10 @@ if __name__ == "__main__":
 
     # Create every base sprites
     counter = Counter_class.Counter(all_sprites, screen)
-    button = Button_class.Button(all_sprites, screen, counter, movable_sprites)
-    screwdriver = Screwdriver_class.Screwdriver(movable_sprites, screen)
     blink = Blink_class.Blink(blink_group, screen)
-
+    screwdriver = Screwdriver_class.Screwdriver(all_sprites, screen)
+    button = Button_class.Button(all_sprites, screen, counter, blink, movable_sprites)
+    movable_sprites.add(screwdriver)
     running = True
     while running:
         for event in pygame.event.get():
@@ -32,7 +32,6 @@ if __name__ == "__main__":
             
             screen.fill("white")
             all_sprites.update(event)
-            movable_sprites.update(event)
             blink_group.update(event)
         
         screen.fill('white')
