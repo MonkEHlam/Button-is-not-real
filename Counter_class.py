@@ -39,5 +39,5 @@ class Counter(pygame.sprite.Sprite):
         text_rect.center = (
             self.rect.centerx,
             self.rect.centery,
-        )  # Set position of textbox at the center of counter spriteS
+        )  # Set position of textbox at the center of counter sprites
         self.screen.blit(text_surface, text_rect)

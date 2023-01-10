@@ -29,15 +29,22 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
+            
             screen.fill("white")
             all_sprites.update(event)
             movable_sprites.update(event)
             blink_group.update(event)
+        
+        screen.fill('white')
+        # updating sprites if there is no new events
+        all_sprites.update()
+        movable_sprites.update()
+        blink_group.update()
+
         all_sprites.draw(screen)
         movable_sprites.draw(screen)
         blink_group.draw(screen)
-
+        
         # The development point of ending score
         if counter.get_score() == 40:
             running = False
