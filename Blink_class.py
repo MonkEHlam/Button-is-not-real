@@ -11,11 +11,6 @@ class Blink(pygame.sprite.Sprite):
         self.transperency = 0
         self.start_event = False
 
-        constants.EVENTS["HOLDBLINK"], constants.event_ctr = (
-            pygame.USEREVENT + constants.event_ctr,
-            constants.event_ctr + 1,
-        )
-
         # Load all pictures of sprite
         self.blinked_image = load_image("blink.png")
 

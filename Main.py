@@ -7,9 +7,10 @@ import constants
 import EventManager
 from load_image_func import load_image
 from AnimatedSprite_class import AnimatedSprite
-from random import randint, choice
+from random import randint, choice, sample
 
 if __name__ == "__main__":
+    pygame.mixer.pre_init(44100, -16, 1, 512)
     pygame.init()
     trash_group = pygame.sprite.Group()
     group_that_not_draw = pygame.sprite.Group()
@@ -29,8 +30,12 @@ if __name__ == "__main__":
     )
     em = EventManager.EventManager(screen, display, screwdriver, button, blink)
     bg = load_image("bg.png")
+    fake_template = load_image("fake_template.png")
+    fake_template.set_alpha(0)
     rain = AnimatedSprite(trash_group, load_image("rain.png"), 7, 5, 0, 0)
     words_group = []
+    fake_buttons_far = pygame.sprite.Group()
+    fake_buttons_close = pygame.sprite.Group()
     running = True
 
     constants.EVENTS["DISPLAYTEXTUPDATE"], constants.event_ctr = (
@@ -49,9 +54,31 @@ if __name__ == "__main__":
         pygame.USEREVENT + constants.event_ctr,
         constants.event_ctr + 1,
     )
+    constants.EVENTS["FIXINGSTUCKEDBUTTON"], constants.event_ctr = (
+            pygame.USEREVENT + constants.event_ctr,
+            constants.event_ctr + 1,
+    )
+    constants.EVENTS["WAITFORBTN"], constants.event_ctr = (
+            pygame.USEREVENT + constants.event_ctr,
+            constants.event_ctr + 1,
+    )
+    constants.EVENTS["HOLDBLINK"], constants.event_ctr = (
+            pygame.USEREVENT + constants.event_ctr,
+            constants.event_ctr + 1,
+    )
+    constants.EVENTS["DELETEFAKES"], constants.event_ctr = (
+            pygame.USEREVENT + constants.event_ctr,
+            constants.event_ctr + 1,
+    )
+    constants.EVENTS["FORSEDBLINK"], constants.event_ctr = (
+            pygame.USEREVENT + constants.event_ctr,
+            constants.event_ctr + 1,
+    )
+
     pygame.time.set_timer(constants.EVENTS["DISPLAYTEXTUPDATE"], 20)
     pygame.time.set_timer(constants.EVENTS["RAINUPDATE"], 40)
     pygame.time.set_timer(constants.EVENTS["WORDSPAWN"], 5)
+    pygame.time.set_timer(constants.EVENTS["FORSEDBLINK"], 3500)
 
     while running:
         for event in pygame.event.get():
@@ -65,7 +92,7 @@ if __name__ == "__main__":
                 surf = pygame.font.Font("fonts/rough.ttf", randint(20, 70)).render(
                     choice(constants.WORDS_POOL),
                     True,
-                    (randint(0, 255), randint(0, 255), randint(0, 255)),
+                    (randint(0, 100), randint(0, 100), randint(0, 100)),
                 )
                 rectforsurf = surf.get_rect()
                 rectforsurf.center = (
@@ -80,10 +107,34 @@ if __name__ == "__main__":
             ):
                 em.words_spawn = False
                 words_group.clear()
+            
+            if event.type == constants.EVENTS["DELETEFAKES"]:
+                button.set_to_default()
+                fake_buttons_far.empty()
+                fake_buttons_close.empty()
+                fake_template.set_alpha(0)
+
 
             all_sprites.update(event)
+            fake_buttons_far.update(event)
+            fake_buttons_close.update(event)
             movable_sprites.update(event)
             blink_group.update(event)
+
+        if em.spawn_buttons:
+            poses = sample(constants.FAKE_BUTTONS_POS, 10)
+            button.rect.topleft = (poses[-1])
+            for i in range(9):
+                if poses[i][1] == constants.FAKE_BUTTONS_POS[0][1]:
+                    b = Button_class.Button(
+                        fake_buttons_far, screen, display, blink, movable_sprites, screwdriver, True, poses[i]
+                    )
+                else:
+                    b = Button_class.Button(
+                        fake_buttons_close, screen, display, blink, movable_sprites, screwdriver, True, poses[i]
+                    )
+            em.spawn_buttons = False
+            fake_template.set_alpha(255)
 
         if blink.start_event == True:
             em.start_event(2)
@@ -95,6 +146,7 @@ if __name__ == "__main__":
         em.checker()
         trash_group.draw(screen)
         screen.blit(bg, (0, 0))
+        screen.blit(fake_template, (288, 340))
         # updating sprites if there is no new events
         all_sprites.update()
         blink_group.update()
@@ -102,6 +154,8 @@ if __name__ == "__main__":
         movable_sprites.update()
 
         all_sprites.draw(screen)
+        fake_buttons_far.draw(screen)
+        fake_buttons_close.draw(screen)
         movable_sprites.draw(screen)
         for word in words_group:
             screen.blit(word[0], word[1])

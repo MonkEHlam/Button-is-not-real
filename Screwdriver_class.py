@@ -86,7 +86,6 @@ class Screwdriver(pygame.sprite.Sprite):
                 if self.boom[-1] < 3:
                     self.image = self.boom[self.boom[-1]]
                     self.boom[-1] += 1
-                    print(0)
 
             else:
                 if self.rotation_out[-1] < 4:

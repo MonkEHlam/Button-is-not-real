@@ -13,15 +13,11 @@ class EventManager:
 
         self.blink_ctr = 0
         self.words_spawn = False
-
-        constants.EVENTS["WAITFORBTN"], constants.event_ctr = (
-            pygame.USEREVENT + constants.event_ctr,
-            constants.event_ctr + 1,
-        )
+        self.spawn_buttons = False
         self.need_hold_btn = False
 
         self.blink_event_chanse = [i for i in range(4)]
-        self.btn_event_chanse = [i for i in range(1)]
+        self.btn_event_chanse = [i for i in range(3)]
 
     def start_event(self, evtype: int):
         if evtype == 1:
@@ -35,7 +31,7 @@ class EventManager:
                 choice(list_of_events)()
         if evtype == 2:
             if choice(self.blink_event_chanse) == max(self.blink_event_chanse):
-                list_of_events = [self.move_screwdriver]
+                list_of_events = [self.move_screwdriver, self.fake_buttons]
                 choice(list_of_events)()
 
     def move_screwdriver(self):
@@ -92,3 +88,7 @@ class EventManager:
 
     def words(self):
         self.words_spawn = True
+
+    def fake_buttons(self):
+        self.spawn_buttons = True
+        self.btn.fakes = True
