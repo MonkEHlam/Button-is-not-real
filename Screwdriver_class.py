@@ -71,7 +71,6 @@ class Screwdriver(pygame.sprite.Sprite):
                         self.screw = 0
                         self.anim_number += 1
                         self.rotation_in[-1] = 0
-
                 if self.rotation_in[-1] < 4:
                     self.rect.topleft = constants.SCREWS_POS[self.screw]
                     self.image = self.rotation_in[self.rotation_in[-1]]

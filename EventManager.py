@@ -44,7 +44,6 @@ class EventManager:
             randrange(constants.RESOLUTION[0]),
             randrange(338, constants.RESOLUTION[1]),
         )
-        print(self.screwdriver.rect.topleft)
 
     def button_stuck(self):
         if not self.need_hold_btn:
