@@ -37,13 +37,15 @@ if __name__ == "__main__":
     )
     em = EventManager.EventManager(screen, display, screwdriver, button, blink)
     bg = load_image("bg.png")
-    pygame.mixer.Sound("sounds/bg.ogg").play()
+    s_rain = pygame.mixer.Sound("sounds/rain.ogg")
+    s_rain.set_volume(0.2)
+    s_rain.play(-1)
     fake_template = load_image("fake_template.png")
     fake_template.set_alpha(0)
     rain = AnimatedSprite(trash_group, load_image("rain.png"), 7, 5, 0, 0)
-    pygame.mixer.music.load("sounds/rain.ogg")
+    pygame.mixer.music.load("sounds/bg.ogg")
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.2)
+    pygame.mixer.music.set_volume(1)
     words_group = []
     fake_buttons_far = pygame.sprite.Group()
     fake_buttons_close = pygame.sprite.Group()
@@ -85,13 +87,17 @@ if __name__ == "__main__":
         pygame.USEREVENT + constants.event_ctr,
         constants.event_ctr + 1,
     )
+    constants.EVENTS["EVENTEND"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
 
     pygame.time.set_timer(constants.EVENTS["DISPLAYTEXTUPDATE"], 20)
     pygame.time.set_timer(constants.EVENTS["RAINUPDATE"], 40)
     pygame.time.set_timer(constants.EVENTS["WORDSPAWN"], 5)
-    pygame.time.set_timer(constants.EVENTS["FORSEDBLINK"], 3500)
 
     while running:
+        clock.tick_busy_loop(constants.FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -99,6 +105,8 @@ if __name__ == "__main__":
                 display.update(event)
             if event.type == constants.EVENTS["RAINUPDATE"]:
                 rain.update(event)
+            if event.type == constants.EVENTS["EVENTEND"]:
+                em.smth_started = False
             if em.words_spawn and event.type == constants.EVENTS["WORDSPAWN"]:
                 surf = pygame.font.Font("fonts/rough.ttf", randint(20, 70)).render(
                     choice(constants.WORDS_POOL),
@@ -113,11 +121,11 @@ if __name__ == "__main__":
                 words_group.append((surf, rectforsurf))
             if (
                 em.words_spawn
-                and blink.is_blink
-                and event.type == constants.EVENTS["HOLDBLINK"]
+                and blink.holding_blink >= 1500
             ):
                 em.words_spawn = False
                 words_group.clear()
+                em.smth_started = False
 
             if (
                 event.type == constants.EVENTS["DELETEFAKES"]
@@ -127,6 +135,7 @@ if __name__ == "__main__":
                 fake_buttons_far.empty()
                 fake_buttons_close.empty()
                 fake_template.set_alpha(0)
+                em.smth_started = False
 
             all_sprites.update(event)
             fake_buttons_far.update(event)
@@ -173,10 +182,11 @@ if __name__ == "__main__":
         if blink.start_event == True:
             em.start_event(2)
             blink.start_event = False
+        
         if button.start_event == True:
             em.start_event(1)
             button.start_event = False
-
+        
         em.checker()
         trash_group.draw(screen)
         screen.blit(bg, (0, 0))
@@ -192,12 +202,12 @@ if __name__ == "__main__":
         fake_buttons_far.draw(screen)
         fake_buttons_close.draw(screen)
         movable_sprites.draw(screen)
+        
         for word in words_group:
             screen.blit(word[0], word[1])
         blink_group.draw(screen)
         # The development point of ending score
         if display.get_score(1) == 40:
             running = False
-        clock.tick(constants.FPS)
         pygame.display.flip()
     pygame.quit()

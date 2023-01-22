@@ -28,9 +28,12 @@ class Button(pygame.sprite.Sprite):
         self.is_touched = False
         self.is_stuck = False
         self.need_hold_btn = False
+        self.hold_started = False
         self.start_event = False
         self.fix_started = False
         self.dont_push = False
+        self.start_time = pygame.time.get_ticks()
+        self.holding_btn = 0
 
         # Load all pictures of sprite
         self.upped_image = load_image(f"buttons/btn{color_num}.png")
@@ -55,13 +58,14 @@ class Button(pygame.sprite.Sprite):
         self.image = self.upped_image
         self.is_touched = False
         self.is_stuck = False
-        self.need_hold_btn = False
-        self.start_event = False
         self.fix_started = False
         if not self.dont_push:
             self.s_unpush.play()
         self.dont_push = False
         self.fakes = False
+        if not self.need_hold_btn:
+            self.holding_btn = 0
+        pygame.event.post(pygame.event.Event(constants.EVENTS["EVENTEND"]))
 
     def update(self, *args) -> None:
         if args and args[0].type == constants.EVENTS["FIXINGSTUCKEDBUTTON"]:
@@ -73,6 +77,12 @@ class Button(pygame.sprite.Sprite):
             self.set_to_default()
             self.display.set_display_text("PUSH THE BUTTON")
             pygame.time.set_timer(constants.EVENTS["WAITFORBTN"], 0)
+
+        if self.need_hold_btn and self.holding_btn > 1000:
+            self.set_to_default()
+            self.need_hold_btn = False
+            self.holding_btn = 0
+            self.display.set_display_text("PUSH THE BUTTON")
 
         if (
             not self.fix_started
@@ -97,6 +107,7 @@ class Button(pygame.sprite.Sprite):
             self.rect.y += self.image.get_height() - self.down_image.get_height()
             self.image = self.down_image
             self.s_push.play()
+            self.start_time = pygame.time.get_ticks()
 
         if (
             args
@@ -113,3 +124,6 @@ class Button(pygame.sprite.Sprite):
             else:
                 pygame.event.post(pygame.event.Event(constants.EVENTS["DELETEFAKES"]))
                 self.display.change_score(-3)
+        
+        if self.is_touched:
+            self.holding_btn = pygame.time.get_ticks() - self.start_time
