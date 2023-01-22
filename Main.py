@@ -7,7 +7,7 @@ import constants
 import EventManager
 from load_image_func import load_image
 from AnimatedSprite_class import AnimatedSprite
-from random import randint, choice, sample
+from random import randint, choice, sample, shuffle
 
 if __name__ == "__main__":
     pygame.mixer.pre_init(44100, -16, 1, 512)
@@ -17,16 +17,17 @@ if __name__ == "__main__":
     all_sprites = pygame.sprite.Group()
     blink_group = pygame.sprite.Group()
     movable_sprites = pygame.sprite.Group()
-    size = width, height = constants.RESOLUTION
-    screen = pygame.display.set_mode(size)
+    screen = pygame.display.set_mode(constants.RESOLUTION)
     clock = pygame.time.Clock()
+    button_colors = [i for i in range(10)]
+    shuffle(button_colors)
 
     # Create every base sprites
     display = Display_class.Display(group_that_not_draw, screen)
     blink = Blink_class.Blink(blink_group, screen)
     screwdriver = Screwdriver_class.Screwdriver(movable_sprites, screen, blink)
     button = Button_class.Button(
-        all_sprites, screen, display, blink, movable_sprites, screwdriver
+        all_sprites, screen, display, blink, movable_sprites, screwdriver, button_colors.pop()
     )
     em = EventManager.EventManager(screen, display, screwdriver, button, blink)
     bg = load_image("bg.png")
@@ -108,7 +109,7 @@ if __name__ == "__main__":
                 em.words_spawn = False
                 words_group.clear()
             
-            if event.type == constants.EVENTS["DELETEFAKES"]:
+            if event.type == constants.EVENTS["DELETEFAKES"] and fake_buttons_close.sprites():
                 button.set_to_default()
                 fake_buttons_far.empty()
                 fake_buttons_close.empty()
@@ -124,16 +125,21 @@ if __name__ == "__main__":
         if em.spawn_buttons:
             poses = sample(constants.FAKE_BUTTONS_POS, 10)
             button.rect.topleft = (poses[-1])
+            if poses[-1][1] == constants.FAKE_BUTTONS_POS[0][1]:
+                fake_buttons_far.add(button)
+            else:
+                fake_buttons_close.add(button)
             for i in range(9):
                 if poses[i][1] == constants.FAKE_BUTTONS_POS[0][1]:
                     b = Button_class.Button(
-                        fake_buttons_far, screen, display, blink, movable_sprites, screwdriver, True, poses[i]
+                        fake_buttons_far, screen, display, blink, movable_sprites, screwdriver, button_colors[i], True, poses[i]
                     )
                 else:
                     b = Button_class.Button(
-                        fake_buttons_close, screen, display, blink, movable_sprites, screwdriver, True, poses[i]
+                        fake_buttons_close, screen, display, blink, movable_sprites, screwdriver, button_colors[i], True, poses[i]
                     )
             em.spawn_buttons = False
+            shuffle(button_colors)
             fake_template.set_alpha(255)
 
         if blink.start_event == True:
@@ -147,12 +153,13 @@ if __name__ == "__main__":
         trash_group.draw(screen)
         screen.blit(bg, (0, 0))
         screen.blit(fake_template, (288, 340))
+        
         # updating sprites if there is no new events
         all_sprites.update()
         blink_group.update()
         group_that_not_draw.update()
         movable_sprites.update()
-
+        
         all_sprites.draw(screen)
         fake_buttons_far.draw(screen)
         fake_buttons_close.draw(screen)

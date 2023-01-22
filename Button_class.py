@@ -5,7 +5,7 @@ from load_image_func import load_image
 
 class Button(pygame.sprite.Sprite):
     def __init__(
-        self, sprite_group, screen, display, blink, prevert_sprites, screwdriver, is_fake=False, pos=()
+        self, sprite_group, screen, display, blink, prevert_sprites, screwdriver, color_num: int, is_fake=False, pos=()
     ):
         super().__init__(sprite_group)
         self.blink = blink
@@ -14,6 +14,7 @@ class Button(pygame.sprite.Sprite):
         self.prevert_sprite_group = prevert_sprites
         self.screwdriver = screwdriver
         self.is_fake = is_fake
+        self.color = color_num
 
         self.is_touched = False
         self.is_stuck = False
@@ -23,8 +24,8 @@ class Button(pygame.sprite.Sprite):
         self.dont_push = False
         
         # Load all pictures of sprite
-        self.upped_image = load_image("base_btn.png")
-        self.down_image = load_image("pushed_btn.png")
+        self.upped_image = load_image(f"buttons/btn{color_num}.png")
+        self.down_image = load_image(f"buttons/pbtn{color_num}.png")
 
         self.image = self.upped_image  # Variable for storing the selected image
         self.rect = self.image.get_rect()
@@ -98,6 +99,7 @@ class Button(pygame.sprite.Sprite):
             if not self.is_fake:
                 self.display.change_score(1)
                 self.start_event = True
+                pygame.event.post(pygame.event.Event(constants.EVENTS["DELETEFAKES"]))
             else:
                 pygame.event.post(pygame.event.Event(constants.EVENTS["DELETEFAKES"]))
                 self.display.change_score(-3)
