@@ -9,7 +9,7 @@ class Radio(pygame.sprite.Sprite):
         super().__init__(group)
         self.is_on = False
 
-        pygame.mixer.music.load("sounds/untitled.mp3")
+        pygame.mixer.music.load("sounds/radio.mp3")
         pygame.mixer.music.set_volume(0)
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_pos(random.randint(15, constants.RADIO_MUSIC_LENGTH))
