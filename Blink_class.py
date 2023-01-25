@@ -4,9 +4,8 @@ from load_image_func import load_image
 
 
 class Blink(pygame.sprite.Sprite):
-    def __init__(self, sprite_group, screen):
+    def __init__(self, sprite_group):
         super().__init__(sprite_group)
-        self.screen = screen
         self.is_blink = False
         self.transperency = 0
         self.start_event = False
@@ -17,10 +16,9 @@ class Blink(pygame.sprite.Sprite):
 
         # Load all pictures of sprite
         self.blinked_image = load_image("blink.png")
-        
+
         self.image = self.blinked_image  # Variable for storing the selected image
 
-        
         self.rect = self.image.get_rect()
 
         # Set start position of sprite
@@ -64,8 +62,8 @@ class Blink(pygame.sprite.Sprite):
             self.image.set_alpha(self.transperency)
 
         if self.transperency == 255:
-            self.start_event = True 
-        
+            self.start_event = True
+
         if self.is_blink and self.transperency >= 255:
             self.holding_blink = pygame.time.get_ticks() - self.start_time
         else:

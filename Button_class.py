@@ -7,7 +7,6 @@ class Button(pygame.sprite.Sprite):
     def __init__(
         self,
         sprite_group,
-        screen,
         display,
         blink,
         prevert_sprites,
@@ -18,7 +17,6 @@ class Button(pygame.sprite.Sprite):
     ):
         super().__init__(sprite_group)
         self.blink = blink
-        self.screen = screen
         self.display = display
         self.prevert_sprite_group = prevert_sprites
         self.screwdriver = screwdriver
@@ -124,6 +122,6 @@ class Button(pygame.sprite.Sprite):
             else:
                 pygame.event.post(pygame.event.Event(constants.EVENTS["DELETEFAKES"]))
                 self.display.change_score(-3)
-        
+
         if self.is_touched:
             self.holding_btn = pygame.time.get_ticks() - self.start_time

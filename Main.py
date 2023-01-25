@@ -5,6 +5,7 @@ import Screwdriver_class
 import Blink_class
 import constants
 import EventManager
+import Radio_class
 from load_image_func import load_image
 from AnimatedSprite_class import AnimatedSprite
 from random import randint, choice, sample, shuffle
@@ -16,7 +17,9 @@ if __name__ == "__main__":
     group_that_not_draw = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
     blink_group = pygame.sprite.Group()
-    movable_sprites = pygame.sprite.Group()
+    fake_buttons_far = pygame.sprite.Group()
+    fake_buttons_close = pygame.sprite.Group()
+    pervert_sprites = pygame.sprite.Group()
     screen = pygame.display.set_mode(constants.RESOLUTION)
     clock = pygame.time.Clock()
     button_colors = [i for i in range(10)]
@@ -24,31 +27,30 @@ if __name__ == "__main__":
 
     # Create every base sprites
     display = Display_class.Display(group_that_not_draw, screen)
-    blink = Blink_class.Blink(blink_group, screen)
-    screwdriver = Screwdriver_class.Screwdriver(movable_sprites, screen, blink)
+    radio = Radio_class.Radio(all_sprites)
+    blink = Blink_class.Blink(blink_group)
+    screwdriver = Screwdriver_class.Screwdriver(pervert_sprites, blink)
     button = Button_class.Button(
         all_sprites,
-        screen,
         display,
         blink,
-        movable_sprites,
+        pervert_sprites,
         screwdriver,
         button_colors.pop(),
     )
-    em = EventManager.EventManager(screen, display, screwdriver, button, blink)
+    em = EventManager.EventManager(display, screwdriver, button, blink)
     bg = load_image("bg.png")
+    rain = AnimatedSprite(trash_group, load_image("rain.png"), 7, 5, 0, 0)
+    fake_template = load_image("fake_template.png")
+    fake_template.set_alpha(0)
+
     s_rain = pygame.mixer.Sound("sounds/rain.ogg")
     s_rain.set_volume(0.2)
     s_rain.play(-1)
-    fake_template = load_image("fake_template.png")
-    fake_template.set_alpha(0)
-    rain = AnimatedSprite(trash_group, load_image("rain.png"), 7, 5, 0, 0)
-    pygame.mixer.music.load("sounds/bg.ogg")
-    pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(1)
+    s_bg = pygame.mixer.Sound("sounds/bg.ogg")
+    s_bg.play(-1)
     words_group = []
-    fake_buttons_far = pygame.sprite.Group()
-    fake_buttons_close = pygame.sprite.Group()
+
     running = True
 
     constants.EVENTS["DISPLAYTEXTUPDATE"], constants.event_ctr = (
@@ -108,7 +110,7 @@ if __name__ == "__main__":
             if event.type == constants.EVENTS["EVENTEND"]:
                 em.smth_started = False
             if em.words_spawn and event.type == constants.EVENTS["WORDSPAWN"]:
-                surf = pygame.font.Font("fonts/rough.ttf", randint(20, 70)).render(
+                surf = pygame.font.Font("fonts/rough.ttf", randint(20, 100)).render(
                     choice(constants.WORDS_POOL),
                     True,
                     (randint(0, 100), randint(0, 100), randint(0, 100)),
@@ -119,10 +121,7 @@ if __name__ == "__main__":
                     randint(0, constants.RESOLUTION[0]),
                 )
                 words_group.append((surf, rectforsurf))
-            if (
-                em.words_spawn
-                and blink.holding_blink >= 1500
-            ):
+            if em.words_spawn and blink.holding_blink >= 1600:
                 em.words_spawn = False
                 words_group.clear()
                 em.smth_started = False
@@ -135,12 +134,13 @@ if __name__ == "__main__":
                 fake_buttons_far.empty()
                 fake_buttons_close.empty()
                 fake_template.set_alpha(0)
+                blink.no_blink = 5001
                 em.smth_started = False
 
             all_sprites.update(event)
             fake_buttons_far.update(event)
             fake_buttons_close.update(event)
-            movable_sprites.update(event)
+            pervert_sprites.update(event)
             blink_group.update(event)
 
         if em.spawn_buttons:
@@ -154,10 +154,9 @@ if __name__ == "__main__":
                 if poses[i][1] == constants.FAKE_BUTTONS_POS[0][1]:
                     b = Button_class.Button(
                         fake_buttons_far,
-                        screen,
                         display,
                         blink,
-                        movable_sprites,
+                        pervert_sprites,
                         screwdriver,
                         button_colors[i],
                         True,
@@ -166,10 +165,9 @@ if __name__ == "__main__":
                 else:
                     b = Button_class.Button(
                         fake_buttons_close,
-                        screen,
                         display,
                         blink,
-                        movable_sprites,
+                        pervert_sprites,
                         screwdriver,
                         button_colors[i],
                         True,
@@ -182,11 +180,11 @@ if __name__ == "__main__":
         if blink.start_event == True:
             em.start_event(2)
             blink.start_event = False
-        
+
         if button.start_event == True:
             em.start_event(1)
             button.start_event = False
-        
+
         em.checker()
         trash_group.draw(screen)
         screen.blit(bg, (0, 0))
@@ -196,13 +194,13 @@ if __name__ == "__main__":
         all_sprites.update()
         blink_group.update()
         group_that_not_draw.update()
-        movable_sprites.update()
+        pervert_sprites.update()
 
         all_sprites.draw(screen)
         fake_buttons_far.draw(screen)
         fake_buttons_close.draw(screen)
-        movable_sprites.draw(screen)
-        
+        pervert_sprites.draw(screen)
+
         for word in words_group:
             screen.blit(word[0], word[1])
         blink_group.draw(screen)
