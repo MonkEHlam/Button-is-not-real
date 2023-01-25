@@ -6,13 +6,60 @@ import Blink_class
 import constants
 import EventManager
 import Radio_class
+import Start_button
+import sys
 from load_image_func import load_image
 from AnimatedSprite_class import AnimatedSprite
 from random import randint, choice, sample, shuffle
 
+
+pygame.mixer.pre_init(44100, -16, 1, 512)
+pygame.init()
+
+
+def termianate():
+    pygame.quit()
+    sys.exit()
+
+
+def start_screen(clock):
+    screen = pygame.display.set_mode(constants.RESOLUTION)
+    group = pygame.sprite.Group()
+    btn = Start_button.Button(group, screen)
+    text_surface = pygame.font.Font("fonts/dialog.ttf", 30).render(
+        "Press space to skip", True, (90, 90, 90)
+    )
+    text_rect = text_surface.get_rect()
+    text_rect.bottomright = constants.RESOLUTION
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                termianate()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 3 and btn.ready:
+                    return None
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return None
+            btn.update(event)
+            screen.fill("white")
+        group.draw(screen)
+        btn.update()
+        screen.blit(text_surface, text_rect)
+        pygame.display.flip()
+        clock.tick_busy_loop(constants.FPS)
+
+
 if __name__ == "__main__":
-    pygame.mixer.pre_init(44100, -16, 1, 512)
-    pygame.init()
+    constants.EVENTS["DISPLAYTEXTUPDATE"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+
+    clock = pygame.time.Clock()
+    start_screen(clock)
+
     trash_group = pygame.sprite.Group()
     group_that_not_draw = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
@@ -21,7 +68,6 @@ if __name__ == "__main__":
     fake_buttons_close = pygame.sprite.Group()
     pervert_sprites = pygame.sprite.Group()
     screen = pygame.display.set_mode(constants.RESOLUTION)
-    clock = pygame.time.Clock()
     button_colors = [i for i in range(10)]
     shuffle(button_colors)
 
@@ -108,7 +154,7 @@ if __name__ == "__main__":
         clock.tick_busy_loop(constants.FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                termianate()
             if event.type == constants.EVENTS["DISPLAYTEXTUPDATE"]:
                 display.update(event)
             if event.type == constants.EVENTS["RAINUPDATE"]:
@@ -217,6 +263,5 @@ if __name__ == "__main__":
         blink_group.draw(screen)
         # The development point of ending score
         if display.get_score(1) == 40:
-            running = False
+            termianate()
         pygame.display.flip()
-    pygame.quit()
