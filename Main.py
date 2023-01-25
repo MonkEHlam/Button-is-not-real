@@ -44,11 +44,13 @@ if __name__ == "__main__":
     fake_template = load_image("fake_template.png")
     fake_template.set_alpha(0)
 
+    whispers = pygame.mixer.Sound("sounds/peak_word_whisp.ogg")
     s_rain = pygame.mixer.Sound("sounds/rain.ogg")
-    s_rain.set_volume(0.2)
+    s_rain.set_volume(0.05)
     s_rain.play(-1)
     s_bg = pygame.mixer.Sound("sounds/bg.ogg")
     s_bg.play(-1)
+    s_bg.set_volume(0.5)
     words_group = []
 
     running = True
@@ -93,6 +95,10 @@ if __name__ == "__main__":
         pygame.USEREVENT + constants.event_ctr,
         constants.event_ctr + 1,
     )
+    constants.EVENTS["WHISPERS"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
 
     pygame.time.set_timer(constants.EVENTS["DISPLAYTEXTUPDATE"], 20)
     pygame.time.set_timer(constants.EVENTS["RAINUPDATE"], 40)
@@ -121,10 +127,15 @@ if __name__ == "__main__":
                     randint(0, constants.RESOLUTION[0]),
                 )
                 words_group.append((surf, rectforsurf))
+            if event.type == constants.EVENTS["WHISPERS"]:
+                whispers.play(-1)
+                pygame.time.set_timer(constants.EVENTS["WHISPERS"], 0)
+
             if em.words_spawn and blink.holding_blink >= 1600:
                 em.words_spawn = False
                 words_group.clear()
                 em.smth_started = False
+                whispers.stop()
 
             if (
                 event.type == constants.EVENTS["DELETEFAKES"]

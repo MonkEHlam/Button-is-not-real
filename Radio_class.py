@@ -30,6 +30,6 @@ class Radio(pygame.sprite.Sprite):
             self.s_click.play()
             self.is_on = not self.is_on
             if self.is_on:
-                pygame.mixer.music.set_volume(0.4)
+                pygame.mixer.music.set_volume(0.2)
             else:
                 pygame.mixer.music.set_volume(0)

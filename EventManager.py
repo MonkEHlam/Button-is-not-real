@@ -35,7 +35,7 @@ class EventManager:
             if evtype == 1:
                 if choice(self.btn_event_chanse) == max(self.btn_event_chanse):
                     list_of_events = [
-                        self.button_stuck,
+                        # self.button_stuck,
                         self.hold_btn,
                         self.dont_push_btn,
                         self.words,
@@ -104,7 +104,11 @@ class EventManager:
     def words(self):
         self.words_spawn = True
         whisp = pygame.mixer.Sound("sounds/start_word_whisp.ogg")
-        whisp.set_volume(0.4)
+        whisp.set_volume(1)
+        whisp.play()
+        pygame.time.set_timer(
+            constants.EVENTS["WHISPERS"], int(whisp.get_length() * 1000)
+        )
 
     def fake_buttons(self):
         if not self.btn.is_stuck:
