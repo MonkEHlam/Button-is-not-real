@@ -1,6 +1,8 @@
+# all pos variables defined because of the graphics
+
 EVENTS = {}
 event_ctr = 1
-RESOLUTION = [1280, 720]  # Resolution of window(1920x1080)
+RESOLUTION = (1280, 720)  # Resolution of window(1920x1080)
 FPS = 60  # Limit of frames per second
 BUTTON_POS = (581, 340)
 DISPLAY_POS = (305, 20)
@@ -19,3 +21,5 @@ WORDS_POOL = [
     "ANCIENTS",
 ]
 FAKE_BUTTONS_POS = [(x, y) for x in range(300, 865, 141) for y in (317, 433)]
+RADIO_POS = (985, 265)
+RADIO_MUSIC_LENGTH = 5700

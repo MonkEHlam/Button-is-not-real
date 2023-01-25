@@ -4,9 +4,8 @@ from load_image_func import load_image
 
 
 class Screwdriver(pygame.sprite.Sprite):
-    def __init__(self, sprite_group, screen, blink):
+    def __init__(self, sprite_group, blink):
         super().__init__(sprite_group)
-        self.screen = screen
 
         # Load all pictures of sprite
         self.base_image = load_image("screwdriver.png", folder="/screwdriver")
@@ -71,7 +70,6 @@ class Screwdriver(pygame.sprite.Sprite):
                         self.screw = 0
                         self.anim_number += 1
                         self.rotation_in[-1] = 0
-
                 if self.rotation_in[-1] < 4:
                     self.rect.topleft = constants.SCREWS_POS[self.screw]
                     self.image = self.rotation_in[self.rotation_in[-1]]
