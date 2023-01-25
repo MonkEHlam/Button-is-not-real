@@ -35,7 +35,7 @@ class EventManager:
             if evtype == 1:
                 if choice(self.btn_event_chanse) == max(self.btn_event_chanse):
                     list_of_events = [
-                        # self.button_stuck,
+                        self.button_stuck,
                         self.hold_btn,
                         self.dont_push_btn,
                         self.words,
