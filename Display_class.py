@@ -18,7 +18,7 @@ class Display(pygame.sprite.Sprite):
         # Load all pictures of sprite
         self.base_image = load_image("display.png")
 
-        self.image = self.base_image  # Variable for storing the selected image
+        self.image = self.base_image
         self.score = 0
         self.display_text = "PUSH THE BUTTON"
         self.display_text_on_screen = ""
@@ -28,6 +28,7 @@ class Display(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = constants.DISPLAY_POS
 
     def change_score(self, shift):
+        """Get int number for shift of score"""
         self.score += shift
         if self.get_score(1) < 0:
             self.score = 0
@@ -45,6 +46,7 @@ class Display(pygame.sprite.Sprite):
         return str(score)
 
     def set_display_text(self, text):
+        """Get str for display on"""
         self.display_text = text
         self.display_text_on_screen = ""
         self.text_number = 0
@@ -58,9 +60,11 @@ class Display(pygame.sprite.Sprite):
         return self.display_text_on_screen
 
     def update(self, *args) -> None:
+        # if player don't push punish him
         if args and args[0].type == constants.EVENTS["SCOREDOWN"]:
             self.change_score(-1)
-
+        
+        # Draw display image 
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 
         # Update counter of pushes
@@ -80,7 +84,7 @@ class Display(pygame.sprite.Sprite):
             self.update_display_text()
         text_surface = self.font.render(self.get_display_text(), True, (113, 130, 139))
         text_rect = text_surface.get_rect()
-        # Set position of text's textbox
+        # Set position of textbox
         text_rect.center = self.rect.center
         self.screen.blit(text_surface, text_rect)
 

@@ -79,9 +79,10 @@ class Button(pygame.sprite.Sprite):
                         pygame.event.Event(constants.EVENTS["DISPLAYTEXTUPDATE"])
                     )
 
+        # Create text
         text_surface = self.f.render(self.text_on, True, (0, 0, 0))
         text_rect = text_surface.get_rect()
-        # Set position of text's textbox
+        # Set position of textbox
         text_rect.center = (
             constants.RESOLUTION[0] * 0.5,
             constants.RESOLUTION[1] * 0.3,

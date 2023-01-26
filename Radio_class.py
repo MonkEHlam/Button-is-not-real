@@ -11,9 +11,10 @@ class Radio(pygame.sprite.Sprite):
         self.volume = 0.5
 
         pygame.mixer.music.load("sounds/radio.mp3")
+        pygame.mixer.music.set_pos(random.randint(15, constants.RADIO_MUSIC_LENGTH)) # set random position for effect of real life
         pygame.mixer.music.set_volume(0)
         pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_pos(random.randint(15, constants.RADIO_MUSIC_LENGTH))
+        
         self.s_click = pygame.mixer.Sound("sounds/radio_click.ogg")
 
         self.image = load_image("radio.png")
@@ -22,6 +23,7 @@ class Radio(pygame.sprite.Sprite):
         self.rect.topleft = constants.RADIO_POS
 
     def update(self, *args, **kwargs) -> None:
+        #on off radio
         if (
             args
             and args[0].type == pygame.MOUSEBUTTONDOWN
@@ -35,6 +37,7 @@ class Radio(pygame.sprite.Sprite):
             else:
                 pygame.mixer.music.set_volume(0)
 
+        # Turn up volume
         if (
             args
             and self.is_on
@@ -46,6 +49,7 @@ class Radio(pygame.sprite.Sprite):
                 self.volume += 0.1
                 pygame.mixer.music.set_volume(self.volume)
 
+        # Turn down volume
         if (
             args
             and self.is_on

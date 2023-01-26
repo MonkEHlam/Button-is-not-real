@@ -48,27 +48,8 @@ class EventManager:
                     choice(list_of_events)()
                     self.smth_started = True
 
-    def move_screwdriver(self):
-        self.screwdriver.image = pygame.transform.rotate(
-            self.screwdriver.image, randrange(-180, 180)
-        )
-        self.screwdriver.rect = self.screwdriver.image.get_rect()
-        self.screwdriver.image.set_alpha(60)
-        self.screwdriver.rect.bottomright = (
-            randrange(constants.RESOLUTION[0]),
-            randrange(338, constants.RESOLUTION[1]),
-        )
-        self.smth_started = False
-
-    def button_stuck(self):
-        if not self.need_hold_btn:
-            self.btn.is_stuck = True
-
-    def hold_btn(self):
-        self.display.set_display_text("HOLD THE BUTTON")
-        self.need_hold_btn = True
-
     def checker(self):
+        """Check all conditions of events"""
         if self.need_hold_btn and not self.btn.is_touched:
             self.btn.need_hold_btn = True
             self.btn.hold_started = True
@@ -93,6 +74,7 @@ class EventManager:
             self.display.set_display_text("PUSH THE BUTTON")
             self.smth_started = False
 
+    # all of functions next is functions of events
     def turn_down_score(self, shift: int):
         self.display.change_score(shift)
 
@@ -114,3 +96,23 @@ class EventManager:
         if not self.btn.is_stuck and self.btn.dont_push:
             self.spawn_buttons = True
             self.btn.fakes = True
+
+    def move_screwdriver(self):
+        self.screwdriver.image = pygame.transform.rotate(
+            self.screwdriver.image, randrange(-180, 180)
+        )
+        self.screwdriver.rect = self.screwdriver.image.get_rect()
+        self.screwdriver.image.set_alpha(60)
+        self.screwdriver.rect.bottomright = (
+            randrange(constants.RESOLUTION[0]),
+            randrange(338, constants.RESOLUTION[1]),
+        )
+        self.smth_started = False
+
+    def button_stuck(self):
+        if not self.need_hold_btn:
+            self.btn.is_stuck = True
+
+    def hold_btn(self):
+        self.display.set_display_text("HOLD THE BUTTON")
+        self.need_hold_btn = True

@@ -18,4 +18,5 @@ class Timer:
         )
 
     def get_display_time(self) -> str:
+        """return str num of remainig minutes round to top"""
         return str(self.display_time)

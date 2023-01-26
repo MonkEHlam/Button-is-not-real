@@ -1,10 +1,11 @@
-# all pos variables defined because of the graphics
+"""ll pos variables defined because of the graphics"""
 
-EVENTS = {}
+EVENTS = {} # Dictionary {str: int} for storing custom events
 event_ctr = 1
 RESOLUTION = (1280, 720)  # Resolution of window(1920x1080)
 FPS = 60  # Limit of frames per second
 GAME_DURATION = 180  # Timer for gameplay in seconds
+
 BUTTON_PUSH_TIMES = 111
 BUTTON_POS = (581, 340)
 DISPLAY_POS = (305, 20)
