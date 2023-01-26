@@ -8,6 +8,7 @@ class Radio(pygame.sprite.Sprite):
     def __init__(self, group) -> None:
         super().__init__(group)
         self.is_on = False
+        self.volume = 0.5
 
         pygame.mixer.music.load("sounds/radio.mp3")
         pygame.mixer.music.set_volume(0)
@@ -30,6 +31,33 @@ class Radio(pygame.sprite.Sprite):
             self.s_click.play()
             self.is_on = not self.is_on
             if self.is_on:
-                pygame.mixer.music.set_volume(0.4)
+                pygame.mixer.music.set_volume(self.volume)
             else:
                 pygame.mixer.music.set_volume(0)
+
+        if (
+            args
+            and self.is_on
+            and args[0].type == pygame.MOUSEBUTTONDOWN
+            and args[0].button == 4
+            and self.rect.collidepoint(args[0].pos)
+        ):
+            if self.volume < 1:
+                self.volume += 0.1
+                pygame.mixer.music.set_volume(self.volume)
+
+        if (
+            args
+            and self.is_on
+            and args[0].type == pygame.MOUSEBUTTONDOWN
+            and args[0].button == 5
+            and self.rect.collidepoint(args[0].pos)
+        ):
+            if self.volume > 0.1:
+                self.volume -= 0.1
+                pygame.mixer.music.set_volume(self.volume)
+            else:
+                self.volume = 0.15
+                pygame.mixer.music.set_volume(0)
+                self.s_click.play()
+                self.is_on = False
