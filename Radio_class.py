@@ -11,9 +11,9 @@ class Radio(pygame.sprite.Sprite):
         self.volume = 0.5
 
         pygame.mixer.music.load("sounds/radio.mp3")
-        pygame.mixer.music.set_pos(random.randint(15, constants.RADIO_MUSIC_LENGTH)) # set random position for effect of real life
         pygame.mixer.music.set_volume(0)
         pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_pos(random.randint(15, constants.RADIO_MUSIC_LENGTH)) # set random position for effect of real life
         
         self.s_click = pygame.mixer.Sound("sounds/radio_click.ogg")
 
