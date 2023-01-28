@@ -44,7 +44,7 @@ class EventManager:
                     self.smth_started = True
             if evtype == 2:
                 if choice(self.blink_event_chanse) == max(self.blink_event_chanse):
-                    list_of_events = [self.move_screwdriver, self.fake_buttons]
+                    list_of_events = [self.move_screwdriver, self.fake_buttons, self.miss_btn]
                     choice(list_of_events)()
                     self.smth_started = True
 
@@ -73,11 +73,15 @@ class EventManager:
             self.btn.dont_push = False
             self.display.set_display_text("PUSH THE BUTTON")
             self.smth_started = False
+        
+        if self.btn.is_broken and self.blink.holding_blink > 1600:
+            self.btn.set_to_default(False)
+            self.smth_started = False
 
-    # all of functions next is functions of events
     def turn_down_score(self, shift: int):
         self.display.change_score(shift)
 
+    # all of functions next is functions of events
     def dont_push_btn(self):
         self.display.set_display_text("DON'T PUSH THE BUTTON")
         self.btn.dont_push = True
@@ -93,7 +97,7 @@ class EventManager:
         )
 
     def fake_buttons(self):
-        if not self.btn.is_stuck and self.btn.dont_push:
+        if not self.smth_started:
             self.spawn_buttons = True
             self.btn.fakes = True
 
@@ -110,9 +114,14 @@ class EventManager:
         self.smth_started = False
 
     def button_stuck(self):
-        if not self.need_hold_btn:
+        if not self.smth_started:
             self.btn.is_stuck = True
 
     def hold_btn(self):
         self.display.set_display_text("HOLD THE BUTTON")
         self.need_hold_btn = True
+    
+    def miss_btn(self):
+        if not self.smth_started:
+            self.btn.is_broken = True
+            self.btn.image.set_alpha(0)
