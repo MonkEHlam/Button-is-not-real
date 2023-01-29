@@ -63,8 +63,8 @@ class Display(pygame.sprite.Sprite):
         # if player don't push punish him
         if args and args[0].type == constants.EVENTS["SCOREDOWN"]:
             self.change_score(-1)
-        
-        # Draw display image 
+
+        # Draw display image
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 
         # Update counter of pushes

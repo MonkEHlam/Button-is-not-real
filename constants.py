@@ -1,6 +1,6 @@
 """ll pos variables defined because of the graphics"""
 
-EVENTS = {} # Dictionary {str: int} for storing custom events
+EVENTS = {}  # Dictionary {str: int} for storing custom events
 event_ctr = 1
 RESOLUTION = (1280, 720)  # Resolution of window(1920x1080)
 FPS = 60  # Limit of frames per second

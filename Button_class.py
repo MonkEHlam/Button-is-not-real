@@ -25,7 +25,7 @@ class Button(pygame.sprite.Sprite):
         self.prevert_sprite_group = prevert_sprites
         self.screwdriver = screwdriver
         self.is_fake = is_fake
-        
+
         self.no_push = 0
         self.flag = True
         self.is_broken = False
@@ -66,14 +66,13 @@ class Button(pygame.sprite.Sprite):
         self.holding_btn = 0
         self.flag = True
         self.is_touched = False
-        
+
         if not base:
             self.is_broken = False
             self.is_stuck = False
             self.fix_started = False
         if s:
             self.s_unpush.play()
-        
 
     def update(self, *args) -> None:
         # Next three conditions checking is button was fixed from some event
@@ -88,7 +87,6 @@ class Button(pygame.sprite.Sprite):
             self.need_hold_btn = False
             self.display.set_display_text("PUSH THE BUTTON")
             pygame.event.post(pygame.event.Event(constants.EVENTS["EVENTEND"]))
-            print(1)
 
         # Start fixing button from stucking
         if (
@@ -100,7 +98,7 @@ class Button(pygame.sprite.Sprite):
             pygame.time.set_timer(constants.EVENTS["FIXINGSTUCKEDBUTTON"], 1500)
             self.fix_started = True
             pygame.time.set_timer(constants.EVENTS["SCREWDRIVERANIMUPDATE"], 70)
-        
+
         if (
             args
             and args[0].type == pygame.MOUSEBUTTONDOWN
@@ -127,7 +125,7 @@ class Button(pygame.sprite.Sprite):
             and not self.is_broken
         ):
             self.set_to_default()
-            
+
             if not self.is_fake:
                 self.display.change_score(1)
                 self.start_event = True

@@ -14,8 +14,10 @@ class Radio(pygame.sprite.Sprite):
         pygame.mixer.music.load("sounds/radio.mp3")
         pygame.mixer.music.set_volume(0)
         pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_pos(random.randint(15, constants.RADIO_MUSIC_LENGTH)) # set random position for effect of real life
-        
+        pygame.mixer.music.set_pos(
+            random.randint(15, constants.RADIO_MUSIC_LENGTH)
+        )  # set random position for effect of real life
+
         self.s_click = pygame.mixer.Sound("sounds/radio_click.ogg")
         self.s_noizes = pygame.mixer.Sound("sounds/noizes.ogg")
         self.s_noizes.set_volume(0.7)
@@ -26,7 +28,7 @@ class Radio(pygame.sprite.Sprite):
         self.rect.topleft = constants.RADIO_POS
 
     def update(self, *args, **kwargs) -> None:
-        #on off radio
+        # on off radio
         if (
             args
             and args[0].type == pygame.MOUSEBUTTONDOWN
@@ -35,7 +37,6 @@ class Radio(pygame.sprite.Sprite):
         ):
             self.s_click.play()
             self.is_on = not self.is_on
-            print(1)
             if self.is_on:
                 if self.noizes:
                     self.s_noizes.set_volume(0.7)
@@ -44,7 +45,6 @@ class Radio(pygame.sprite.Sprite):
             else:
                 if self.noizes:
                     self.s_noizes.set_volume(0)
-                    print(1)
                 else:
                     pygame.mixer.music.set_volume(0)
 
@@ -78,7 +78,7 @@ class Radio(pygame.sprite.Sprite):
                 pygame.mixer.music.set_volume(0)
                 self.s_click.play()
                 self.is_on = False
-        
+
         if args and args[0].type == constants.EVENTS["RADIOCRACK"]:
             if not self.noizes:
                 pygame.time.set_timer(constants.EVENTS["RADIOCRACK"], 8000)

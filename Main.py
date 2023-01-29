@@ -18,6 +18,7 @@ pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
 flags_of_display = pygame.SCALED | pygame.FULLSCREEN
 
+
 def termianate():
     """Stop programm"""
     pygame.quit()
@@ -71,16 +72,18 @@ if __name__ == "__main__":
     # Create all groups and objects
     clock = pygame.time.Clock()
     start_screen(clock)
-    trash_group = pygame.sprite.Group() # For backsprites
-    group_that_not_draw = pygame.sprite.Group() # For self blit sprites
-    all_sprites = pygame.sprite.Group() # For sprites? that never move
-    blink_group = pygame.sprite.Group() # For blink, that draw last
-    fake_buttons_far = pygame.sprite.Group() 
+    trash_group = pygame.sprite.Group()  # For backsprites
+    group_that_not_draw = pygame.sprite.Group()  # For self blit sprites
+    all_sprites = pygame.sprite.Group()  # For sprites? that never move
+    blink_group = pygame.sprite.Group()  # For blink, that draw last
+    fake_buttons_far = pygame.sprite.Group()
     fake_buttons_close = pygame.sprite.Group()
-    pervert_sprites = pygame.sprite.Group() # For sprites, what can move and pervert other sprite action
+    pervert_sprites = (
+        pygame.sprite.Group()
+    )  # For sprites, what can move and pervert other sprite action
     screen = pygame.display.set_mode(constants.RESOLUTION, flags_of_display)
-    
-    button_colors = [i for i in range(10)] # Need for random color of btn
+
+    button_colors = [i for i in range(10)]  # Need for random color of btn
     shuffle(button_colors)
 
     # Create every base sprites
@@ -188,7 +191,7 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    termianate() 
+                    termianate()
             if event.type == constants.EVENTS["RAINUPDATE"]:
                 rain.update(event)
             if event.type == constants.EVENTS["EVENTEND"]:
@@ -246,7 +249,7 @@ if __name__ == "__main__":
                 swap = pygame.mixer.Sound("sounds/backswap.ogg")
                 swap.play()
 
-            # Update with event 
+            # Update with event
             em.checker(event)
             group_that_not_draw.update(event)
             all_sprites.update(event)
@@ -304,7 +307,6 @@ if __name__ == "__main__":
             em.start_event(1)
             button.start_event = False
 
-        
         trash_group.draw(screen)
         screen.blit(street, constants.BACKSWAP_POS)
         screen.blit(carcosa, constants.BACKSWAP_POS)
@@ -326,7 +328,7 @@ if __name__ == "__main__":
         pervert_sprites.draw(screen)
         for word in words_group:
             screen.blit(word[0], word[1])
-        
+
         blink_group.draw(screen)
 
         # Check is game over

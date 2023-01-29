@@ -35,7 +35,7 @@ class EventManager:
         self.need_hold_btn = False
         self.dont_push = False
 
-        self.reserv_btn_events_list = [[self.words, 4, True, 4, 0],]
+        self.reserv_btn_events_list = [[self.words, 4, True, 4, 0], [self.back_swap, 6, True, 20, 0]]
         self.reserv_blink_events_list = [[self.fake_buttons, 2, True, 5, 0]]
         self.btn_events_list = [
                         # [name of event, ordinal num, is callable, freqency, ctr for freqency]
@@ -43,7 +43,6 @@ class EventManager:
                         [self.hold_btn, 2, True, 2, 0],
                         [self.dont_push_btn, 3, True, 2, 0],
                         [self.radio_crack, 5, False, 8, 0],
-                        [self.back_swap, 6, True, 20, 0]
                     ]
         self.blink_events_list = [[self.move_screwdriver, 1, True, 1, 0], [self.miss_btn, 2, False, 3, 0]]
         
@@ -97,7 +96,6 @@ class EventManager:
             self.end_event()
 
         if self.need_hold_btn and not self.hold_started and self.btn.is_touched:
-            print(1)
             self.btn.need_hold_btn = True
             self.hold_started = True
             self.need_hold_btn = False
@@ -107,7 +105,6 @@ class EventManager:
             self.hold_started = False
             self.turn_down_score(-3)
             self.btn.need_hold_btn = False
-            print(2)
             self.display.set_display_text("PUSH THE BUTTON")
         
         if self.btn_missed and self.blink.holding_blink > 1500:
