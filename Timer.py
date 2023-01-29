@@ -20,3 +20,6 @@ class Timer:
     def get_display_time(self) -> str:
         """return str num of remainig minutes round to top"""
         return str(self.display_time)
+    
+    def get_time(self) -> float:
+        return self.current_time / 1000 / 60

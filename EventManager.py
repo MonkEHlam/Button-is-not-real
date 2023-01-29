@@ -1,10 +1,11 @@
 import pygame
 import constants
-from random import choice, randrange
+from random import randrange, randint
 import Button_class
 import Display_class
 import Screwdriver_class
 import Blink_class
+import Timer
 import constants
 
 
@@ -15,11 +16,13 @@ class EventManager:
         screwdriver: Screwdriver_class.Screwdriver,
         button: Button_class.Button,
         blink: Blink_class.Blink,
+        timer: Timer.Timer
     ) -> None:
         self.display = display
         self.screwdriver = screwdriver
         self.btn = button
         self.blink = blink
+        self.timer = timer
         
         self.whisp = pygame.mixer.Sound("sounds/start_word_whisp.ogg")
         
@@ -32,24 +35,48 @@ class EventManager:
         self.need_hold_btn = False
         self.dont_push = False
 
-        self.blink_event_chanse = [i for i in range(5)]
-        self.btn_event_chanse = [i for i in range(3)]
+        self.reserv_btn_events_list = [[self.words, 4, True, 4, 0]]
+        self.reserv_blink_events_list = [[self.fake_buttons, 2, True, 5, 0]]
+        self.btn_events_list = [
+                        # [name of event, ordinal num, is callable, freqency, ctr for freqency]
+                        [self.button_stuck, 1, True, 5, 0],
+                        [self.hold_btn, 2, True, 2, 0],
+                        [self.dont_push_btn, 3, True, 2, 0],
+                        [self.radio_crack, 5, True, 8, 0]
+                    ]
+        self.blink_events_list = [[self.move_screwdriver, 1, True, 1, 0], [self.miss_btn, 2, True, 3, 0]]
+        
+        self.blink_event_chanse = len(self.blink_events_list) * 2
+        self.btn_event_chanse = len(self.btn_events_list) * 3
 
     def start_event(self, evtype: int):
         if not self.smth_started:
             if evtype == 1:
-                if choice(self.btn_event_chanse) == max(self.btn_event_chanse):
-                    list_of_events = [
-                        self.button_stuck,
-                        self.hold_btn,
-                        self.dont_push_btn,
-                        self.words
-                    ]
-                    choice(list_of_events)()
+                num = randint(1, self.btn_event_chanse)
+                for event in self.btn_events_list:
+                    if event[1] == num:
+                        if event[2]:
+                            event[2] = False
+                            event[0]()
+                            return None
+                    if event[2] == False and event[3] != event[4]:
+                        event[4] += 1
+                    if event[2] == False and event[3] == event[4]:
+                        event[4] = 0
+                        event[2] = True
             if evtype == 2:
-                if choice(self.blink_event_chanse) == max(self.blink_event_chanse):
-                    list_of_events = [self.move_screwdriver, self.fake_buttons, self.miss_btn]
-                    choice(list_of_events)()
+                for event in self.blink_events_list:
+                    num = randint(1, self.blink_event_chanse)
+                    if event[1] == num:
+                        if event[2]:
+                            event[2] = False
+                            event[0]()
+                            return None
+                    if event[2] == False and event[3] != event[4]:
+                        event[4] += 1
+                    if event[2] == False and event[3] == event[4]:
+                        event[4] = 0
+                        event[2] = True
 
     def end_event(self):
         pygame.event.post(pygame.event.Event(constants.EVENTS["EVENTEND"]))
@@ -88,6 +115,12 @@ class EventManager:
             self.smth_started = False
             self.btn.is_broken = False
         
+        if args and args[0].type == constants.EVENTS["NEWEVENTS"]:
+            if self.timer.get_display_time() == "3":
+                self.btn_events_list.append(self.reserv_btn_events_list.pop(0))
+                self.blink_events_list.append(self.reserv_blink_events_list.pop(0))
+                print(self.timer.get_time())
+
     def turn_down_score(self, shift: int):
         self.display.change_score(shift)
 
@@ -136,3 +169,6 @@ class EventManager:
         self.smth_started = True
         self.btn.is_broken = True
         self.btn.image.set_alpha(0)
+
+    def radio_crack(self):
+        pygame.event.post(pygame.event.Event(constants.EVENTS["RADIOCRACK"]))
