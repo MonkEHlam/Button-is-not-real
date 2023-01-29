@@ -27,8 +27,8 @@ class EventManager:
         self.spawn_buttons = False
         self.need_hold_btn = False
 
-        self.blink_event_chanse = [i for i in range(5)]
-        self.btn_event_chanse = [i for i in range(5)]
+        self.blink_event_chanse = [i for i in range(3)]
+        self.btn_event_chanse = [i for i in range(3)]
 
     def start_event(self, evtype: int):
         if not self.smth_started:
@@ -81,13 +81,13 @@ class EventManager:
             and not self.btn.is_touched
             and self.btn.hold_started
         ):
-            self.turn_down_score(-4)
+            self.turn_down_score(-3)
             self.btn.set_to_default()
             self.display.set_display_text("PUSH THE BUTTON")
             self.btn.need_hold_btn = False
 
         if self.btn.dont_push and self.btn.is_touched:
-            self.turn_down_score(-4)
+            self.turn_down_score(-3)
             pygame.time.set_timer(constants.EVENTS["WAITFORBTN"], 0)
             self.btn.dont_push = False
             self.display.set_display_text("PUSH THE BUTTON")
@@ -111,6 +111,6 @@ class EventManager:
         )
 
     def fake_buttons(self):
-        if not self.btn.is_stuck:
+        if not self.btn.is_stuck and self.btn.dont_push:
             self.spawn_buttons = True
             self.btn.fakes = True

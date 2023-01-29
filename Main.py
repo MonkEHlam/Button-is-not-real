@@ -7,6 +7,7 @@ import constants
 import EventManager
 import Radio_class
 import Start_button
+import Timer
 import sys
 from load_image_func import load_image
 from AnimatedSprite_class import AnimatedSprite
@@ -72,7 +73,8 @@ if __name__ == "__main__":
     shuffle(button_colors)
 
     # Create every base sprites
-    display = Display_class.Display(group_that_not_draw, screen)
+    timer = Timer.Timer()
+    display = Display_class.Display(group_that_not_draw, screen, timer)
     radio = Radio_class.Radio(all_sprites)
     blink = Blink_class.Blink(blink_group)
     screwdriver = Screwdriver_class.Screwdriver(pervert_sprites, blink)
@@ -145,6 +147,10 @@ if __name__ == "__main__":
         pygame.USEREVENT + constants.event_ctr,
         constants.event_ctr + 1,
     )
+    constants.EVENTS["SCOREDOWN"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
 
     pygame.time.set_timer(constants.EVENTS["DISPLAYTEXTUPDATE"], 20)
     pygame.time.set_timer(constants.EVENTS["RAINUPDATE"], 40)
@@ -152,11 +158,10 @@ if __name__ == "__main__":
 
     while running:
         clock.tick_busy_loop(constants.FPS)
+        timer.change_time()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 termianate()
-            if event.type == constants.EVENTS["DISPLAYTEXTUPDATE"]:
-                display.update(event)
             if event.type == constants.EVENTS["RAINUPDATE"]:
                 rain.update(event)
             if event.type == constants.EVENTS["EVENTEND"]:
@@ -173,6 +178,7 @@ if __name__ == "__main__":
                     randint(0, constants.RESOLUTION[0]),
                 )
                 words_group.append((surf, rectforsurf))
+
             if event.type == constants.EVENTS["WHISPERS"]:
                 whispers.play(-1)
                 pygame.time.set_timer(constants.EVENTS["WHISPERS"], 0)
@@ -181,6 +187,8 @@ if __name__ == "__main__":
                 em.words_spawn = False
                 words_group.clear()
                 em.smth_started = False
+
+            if em.words_spawn == False:
                 whispers.stop()
 
             if (
@@ -193,7 +201,7 @@ if __name__ == "__main__":
                 fake_template.set_alpha(0)
                 blink.no_blink = 5001
                 em.smth_started = False
-
+            group_that_not_draw.update(event)
             all_sprites.update(event)
             fake_buttons_far.update(event)
             fake_buttons_close.update(event)
@@ -262,6 +270,8 @@ if __name__ == "__main__":
             screen.blit(word[0], word[1])
         blink_group.draw(screen)
         # The development point of ending score
-        if display.get_score(1) == 40:
+        if display.get_score(1) == constants.BUTTON_PUSH_TIMES:
+            termianate()
+        if timer.get_display_time() == "0":
             termianate()
         pygame.display.flip()

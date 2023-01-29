@@ -1,16 +1,20 @@
 import pygame
 import constants
+import Display_class
+import Screwdriver_class
+import Blink_class
+import constants
 from load_image_func import load_image
 
 
 class Button(pygame.sprite.Sprite):
     def __init__(
         self,
-        sprite_group,
-        display,
-        blink,
-        prevert_sprites,
-        screwdriver,
+        sprite_group: pygame.sprite.Group,
+        display: Display_class.Display,
+        blink: Blink_class.Blink,
+        prevert_sprites: pygame.sprite.Group,
+        screwdriver: Screwdriver_class.Screwdriver,
         color_num: int,
         is_fake=False,
         pos=(),
@@ -23,6 +27,8 @@ class Button(pygame.sprite.Sprite):
         self.is_fake = is_fake
         self.color = color_num
 
+        self.flag = True
+        self.no_push = 0
         self.is_touched = False
         self.is_stuck = False
         self.need_hold_btn = False
@@ -52,8 +58,11 @@ class Button(pygame.sprite.Sprite):
             self.rect.topleft = pos
 
     def set_to_default(self):
+        self.start_time = pygame.time.get_ticks()
         self.rect.topleft = constants.BUTTON_POS
         self.image = self.upped_image
+        self.no_push = 0
+        self.flag = True
         self.is_touched = False
         self.is_stuck = False
         self.fix_started = False
@@ -90,8 +99,8 @@ class Button(pygame.sprite.Sprite):
         ):
             pygame.time.set_timer(constants.EVENTS["FIXINGSTUCKEDBUTTON"], 1500)
             self.fix_started = True
+            self.no_push = 0
             pygame.time.set_timer(constants.EVENTS["SCREWDRIVERANIMUPDATE"], 70)
-
         if (
             args
             and args[0].type == pygame.MOUSEBUTTONDOWN
@@ -100,7 +109,6 @@ class Button(pygame.sprite.Sprite):
             and self.rect.collidepoint(args[0].pos)
             and not pygame.sprite.spritecollideany(self, self.prevert_sprite_group)
         ):
-
             self.is_touched = True
             self.rect.y += self.image.get_height() - self.down_image.get_height()
             self.image = self.down_image
@@ -123,5 +131,14 @@ class Button(pygame.sprite.Sprite):
                 pygame.event.post(pygame.event.Event(constants.EVENTS["DELETEFAKES"]))
                 self.display.change_score(-3)
 
-        if self.is_touched:
+        if self.is_touched and self.holding_btn > 1500:
+            self.no_push = pygame.time.get_ticks() - self.start_time
+        elif self.is_touched:
             self.holding_btn = pygame.time.get_ticks() - self.start_time
+            pygame.time.set_timer(constants.EVENTS["SCOREDOWN"], 0)
+        else:
+            self.no_push = pygame.time.get_ticks() - self.start_time
+
+        if self.no_push > 2100 and self.flag:
+            pygame.time.set_timer(constants.EVENTS["SCOREDOWN"], 1000)
+            self.flag = False
