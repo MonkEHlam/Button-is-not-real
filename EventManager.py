@@ -35,16 +35,17 @@ class EventManager:
         self.need_hold_btn = False
         self.dont_push = False
 
-        self.reserv_btn_events_list = [[self.words, 4, True, 4, 0]]
+        self.reserv_btn_events_list = [[self.words, 4, True, 4, 0],]
         self.reserv_blink_events_list = [[self.fake_buttons, 2, True, 5, 0]]
         self.btn_events_list = [
                         # [name of event, ordinal num, is callable, freqency, ctr for freqency]
-                        [self.button_stuck, 1, True, 5, 0],
+                        [self.button_stuck, 1, False, 5, 0],
                         [self.hold_btn, 2, True, 2, 0],
                         [self.dont_push_btn, 3, True, 2, 0],
-                        [self.radio_crack, 5, True, 8, 0]
+                        [self.radio_crack, 5, False, 8, 0],
+                        [self.back_swap, 6, True, 20, 0]
                     ]
-        self.blink_events_list = [[self.move_screwdriver, 1, True, 1, 0], [self.miss_btn, 2, True, 3, 0]]
+        self.blink_events_list = [[self.move_screwdriver, 1, True, 1, 0], [self.miss_btn, 2, False, 3, 0]]
         
         self.blink_event_chanse = len(self.blink_events_list) * 2
         self.btn_event_chanse = len(self.btn_events_list) * 3
@@ -119,7 +120,13 @@ class EventManager:
             if self.timer.get_display_time() == "3":
                 self.btn_events_list.append(self.reserv_btn_events_list.pop(0))
                 self.blink_events_list.append(self.reserv_blink_events_list.pop(0))
-                print(self.timer.get_time())
+                self.blink_event_chanse = len(self.blink_events_list) * 2
+                self.btn_event_chanse = len(self.btn_events_list) * 3
+            
+            if self.timer.get_display_time == "2":
+                self.btn_events_list.append(self.reserv_btn_events_list.pop(0))
+                self.blink_event_chanse = len(self.blink_events_list) * 2
+                self.btn_event_chanse = len(self.btn_events_list) * 3
 
     def turn_down_score(self, shift: int):
         self.display.change_score(shift)
@@ -172,3 +179,6 @@ class EventManager:
 
     def radio_crack(self):
         pygame.event.post(pygame.event.Event(constants.EVENTS["RADIOCRACK"]))
+    
+    def back_swap(self):
+        pygame.event.post(pygame.event.Event(constants.EVENTS["BACKSWAP"]))
