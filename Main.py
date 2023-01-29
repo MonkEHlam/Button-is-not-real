@@ -16,7 +16,7 @@ from random import randint, choice, sample, shuffle
 
 pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
-
+flags_of_display = pygame.SCALED | pygame.FULLSCREEN
 
 def termianate():
     """Stop programm"""
@@ -27,30 +27,37 @@ def termianate():
 def start_screen(clock):
     """Welcome Window"""
 
-    screen = pygame.display.set_mode(constants.RESOLUTION)
+    screen = pygame.display.set_mode(constants.RESOLUTION, flags_of_display)
     group = pygame.sprite.Group()
     btn = Start_button.Button(group, screen)
     text_surface = pygame.font.Font("fonts/dialog.ttf", 30).render(
         "Press space to skip", True, (90, 90, 90)
     )
     text_rect = text_surface.get_rect()
-    text_rect.bottomright = constants.RESOLUTION
+    text_rect.bottomright = (constants.RESOLUTION[0] - 10, constants.RESOLUTION[1])
+    text_surface2 = pygame.font.Font("fonts/dialog.ttf", 30).render(
+        "Press ESC to exit", True, (90, 90, 90)
+    )
+    text_rect2 = text_surface2.get_rect()
+    text_rect2.bottomleft = (10, constants.RESOLUTION[1])
 
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                termianate()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3 and btn.ready:
                     return None
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     return None
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    termianate()
             btn.update(event)
-            screen.fill("white")
+        screen.fill("white")
         group.draw(screen)
         btn.update()
         screen.blit(text_surface, text_rect)
+        screen.blit(text_surface2, text_rect2)
         pygame.display.flip()
         clock.tick_busy_loop(constants.FPS)
 
@@ -63,7 +70,7 @@ if __name__ == "__main__":
 
     # Create all groups and objects
     clock = pygame.time.Clock()
-    #start_screen(clock)
+    start_screen(clock)
     trash_group = pygame.sprite.Group() # For backsprites
     group_that_not_draw = pygame.sprite.Group() # For self blit sprites
     all_sprites = pygame.sprite.Group() # For sprites? that never move
@@ -71,7 +78,7 @@ if __name__ == "__main__":
     fake_buttons_far = pygame.sprite.Group() 
     fake_buttons_close = pygame.sprite.Group()
     pervert_sprites = pygame.sprite.Group() # For sprites, what can move and pervert other sprite action
-    screen = pygame.display.set_mode(constants.RESOLUTION)
+    screen = pygame.display.set_mode(constants.RESOLUTION, flags_of_display)
     
     button_colors = [i for i in range(10)] # Need for random color of btn
     shuffle(button_colors)
@@ -90,8 +97,14 @@ if __name__ == "__main__":
         screwdriver,
         button_colors.pop(),
     )
-    em = EventManager.EventManager(display, screwdriver, button, blink)
+    em = EventManager.EventManager(display, screwdriver, button, blink, timer)
     bg = load_image("bg.png")
+    plains = load_image("plains.png")
+    plains.set_alpha(0)
+    carcosa = load_image("carcosa.png")
+    carcosa.set_alpha(0)
+    street = load_image("street.png")
+    street.set_alpha(150)
     rain = AnimatedSprite(trash_group, load_image("rain.png"), 7, 5, 0, 0)
     fake_template = load_image("fake_template.png")
     fake_template.set_alpha(0)
@@ -105,7 +118,7 @@ if __name__ == "__main__":
     s_bg.play(-1)
     s_bg.set_volume(0.5)
     words_group = []
-
+    backswaped = False
     running = True
     # Add all custom events into dict for easy geting from above
     constants.EVENTS["DISPLAYTEXTUPDATE"], constants.event_ctr = (
@@ -132,10 +145,6 @@ if __name__ == "__main__":
         pygame.USEREVENT + constants.event_ctr,
         constants.event_ctr + 1,
     )
-    constants.EVENTS["HOLDBLINK"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
     constants.EVENTS["DELETEFAKES"], constants.event_ctr = (
         pygame.USEREVENT + constants.event_ctr,
         constants.event_ctr + 1,
@@ -156,7 +165,19 @@ if __name__ == "__main__":
         pygame.USEREVENT + constants.event_ctr,
         constants.event_ctr + 1,
     )
-
+    constants.EVENTS["NEWEVENTS"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["RADIOCRACK"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["BACKSWAP"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    pygame.time.set_timer(constants.EVENTS["NEWEVENTS"], 50000)
     pygame.time.set_timer(constants.EVENTS["DISPLAYTEXTUPDATE"], 20)
     pygame.time.set_timer(constants.EVENTS["RAINUPDATE"], 40)
     pygame.time.set_timer(constants.EVENTS["WORDSPAWN"], 5)
@@ -165,8 +186,9 @@ if __name__ == "__main__":
         clock.tick_busy_loop(constants.FPS)
         timer.change_time()
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                termianate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    termianate() 
             if event.type == constants.EVENTS["RAINUPDATE"]:
                 rain.update(event)
             if event.type == constants.EVENTS["EVENTEND"]:
@@ -207,7 +229,23 @@ if __name__ == "__main__":
                 fake_template.set_alpha(0)
                 blink.no_blink = 5001
                 em.smth_started = False
-            
+            if event.type == constants.EVENTS["BACKSWAP"]:
+                if not backswaped:
+                    backswaped = True
+                    choice([carcosa, plains]).set_alpha(255)
+                    pygame.time.set_timer(constants.EVENTS["BACKSWAP"], 4000)
+                    street.set_alpha(0)
+                    s_rain.stop()
+                else:
+                    backswaped = False
+                    pygame.time.set_timer(constants.EVENTS["BACKSWAP"], 0)
+                    carcosa.set_alpha(0)
+                    plains.set_alpha(0)
+                    street.set_alpha(250)
+                    s_rain.play()
+                swap = pygame.mixer.Sound("sounds/backswap.ogg")
+                swap.play()
+
             # Update with event 
             em.checker(event)
             group_that_not_draw.update(event)
@@ -268,8 +306,11 @@ if __name__ == "__main__":
 
         
         trash_group.draw(screen)
+        screen.blit(street, constants.BACKSWAP_POS)
+        screen.blit(carcosa, constants.BACKSWAP_POS)
+        screen.blit(plains, constants.BACKSWAP_POS)
         screen.blit(bg, (0, 0))
-        screen.blit(fake_template, (288, 340))
+        screen.blit(fake_template, constants.FAKE_TEMPLATE_POS)
 
         # Updating sprites if there is no new events
         em.checker()
