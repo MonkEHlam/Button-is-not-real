@@ -28,7 +28,7 @@ class Screwdriver(pygame.sprite.Sprite):
 
         self.anim_number = 0
         self.blink = blink
-        self.image = self.base_image  # Variable for storing the selected image
+        self.image = self.base_image
         self.is_grab = False
         self.fixing = False
         self.rect = self.image.get_rect()
@@ -60,6 +60,7 @@ class Screwdriver(pygame.sprite.Sprite):
         if self.is_grab:
             self.rect.center = pygame.mouse.get_pos()
 
+        # Animation update
         if args and args[0].type == constants.EVENTS["SCREWDRIVERANIMUPDATE"]:
             if self.anim_number == 0:
                 if self.rotation_in[-1] == 4:

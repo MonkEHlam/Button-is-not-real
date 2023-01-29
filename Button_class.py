@@ -28,6 +28,7 @@ class Button(pygame.sprite.Sprite):
         self.color = color_num
 
         self.flag = True
+        self.is_broken = False
         self.no_push = 0
         self.is_touched = False
         self.is_stuck = False
@@ -57,24 +58,28 @@ class Button(pygame.sprite.Sprite):
         else:
             self.rect.topleft = pos
 
-    def set_to_default(self):
+    def set_to_default(self, s=True):
+        """return btn into default settings"""
         self.start_time = pygame.time.get_ticks()
         self.rect.topleft = constants.BUTTON_POS
         self.image = self.upped_image
+        self.image.set_alpha(255)
+        self.is_broken = False
         self.no_push = 0
         self.flag = True
         self.is_touched = False
         self.is_stuck = False
         self.fix_started = False
-        if not self.dont_push:
-            self.s_unpush.play()
         self.dont_push = False
         self.fakes = False
         if not self.need_hold_btn:
             self.holding_btn = 0
         pygame.event.post(pygame.event.Event(constants.EVENTS["EVENTEND"]))
+        if s:
+            self.s_unpush.play()
 
     def update(self, *args) -> None:
+        # Next three conditions checking is button was fixed from some event
         if args and args[0].type == constants.EVENTS["FIXINGSTUCKEDBUTTON"]:
             self.set_to_default()
             self.display.change_score(1)
@@ -86,11 +91,12 @@ class Button(pygame.sprite.Sprite):
             pygame.time.set_timer(constants.EVENTS["WAITFORBTN"], 0)
 
         if self.need_hold_btn and self.holding_btn > 1000:
-            self.set_to_default()
+            self.set_to_default(False)
             self.need_hold_btn = False
             self.holding_btn = 0
             self.display.set_display_text("PUSH THE BUTTON")
 
+        # Start fixing button from stucking
         if (
             not self.fix_started
             and self.is_stuck
@@ -101,6 +107,7 @@ class Button(pygame.sprite.Sprite):
             self.fix_started = True
             self.no_push = 0
             pygame.time.set_timer(constants.EVENTS["SCREWDRIVERANIMUPDATE"], 70)
+        
         if (
             args
             and args[0].type == pygame.MOUSEBUTTONDOWN
@@ -108,6 +115,7 @@ class Button(pygame.sprite.Sprite):
             and not self.blink.is_blink
             and self.rect.collidepoint(args[0].pos)
             and not pygame.sprite.spritecollideany(self, self.prevert_sprite_group)
+            and not self.is_broken
         ):
             self.is_touched = True
             self.rect.y += self.image.get_height() - self.down_image.get_height()
@@ -123,6 +131,8 @@ class Button(pygame.sprite.Sprite):
             and not self.is_stuck
         ):
             self.set_to_default()
+
+            # fake btns fixing
             if not self.is_fake:
                 self.display.change_score(1)
                 self.start_event = True
@@ -131,6 +141,7 @@ class Button(pygame.sprite.Sprite):
                 pygame.event.post(pygame.event.Event(constants.EVENTS["DELETEFAKES"]))
                 self.display.change_score(-3)
 
+        # Count time of holding or not pushing
         if self.is_touched and self.holding_btn > 1500:
             self.no_push = pygame.time.get_ticks() - self.start_time
         elif self.is_touched:
@@ -139,6 +150,7 @@ class Button(pygame.sprite.Sprite):
         else:
             self.no_push = pygame.time.get_ticks() - self.start_time
 
+        # Start punish for not pushing
         if self.no_push > 2100 and self.flag:
             pygame.time.set_timer(constants.EVENTS["SCOREDOWN"], 1000)
             self.flag = False

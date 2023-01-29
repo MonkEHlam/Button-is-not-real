@@ -40,7 +40,8 @@ class Blink(pygame.sprite.Sprite):
         self.image.set_alpha(self.transperency)
 
     def update(self, *args) -> None:
-        if self.no_blink > 5000:
+        # Forced blink
+        if self.no_blink > 5500:
             self.forced = True
             self.start_time = pygame.time.get_ticks()
 
@@ -61,9 +62,11 @@ class Blink(pygame.sprite.Sprite):
             self.transperency += 15
             self.image.set_alpha(self.transperency)
 
+        # Full blink is cause of event
         if self.transperency == 255:
             self.start_event = True
 
+        # Count time of holding or not blinking
         if self.is_blink and self.transperency >= 255:
             self.holding_blink = pygame.time.get_ticks() - self.start_time
         else:

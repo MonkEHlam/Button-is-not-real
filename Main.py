@@ -19,11 +19,14 @@ pygame.init()
 
 
 def termianate():
+    """Stop programm"""
     pygame.quit()
     sys.exit()
 
 
 def start_screen(clock):
+    """Welcome Window"""
+
     screen = pygame.display.set_mode(constants.RESOLUTION)
     group = pygame.sprite.Group()
     btn = Start_button.Button(group, screen)
@@ -58,18 +61,19 @@ if __name__ == "__main__":
         constants.event_ctr + 1,
     )
 
+    # Create all groups and objects
     clock = pygame.time.Clock()
     start_screen(clock)
-
-    trash_group = pygame.sprite.Group()
-    group_that_not_draw = pygame.sprite.Group()
-    all_sprites = pygame.sprite.Group()
-    blink_group = pygame.sprite.Group()
-    fake_buttons_far = pygame.sprite.Group()
+    trash_group = pygame.sprite.Group() # For backsprites
+    group_that_not_draw = pygame.sprite.Group() # For self blit sprites
+    all_sprites = pygame.sprite.Group() # For sprites? that never move
+    blink_group = pygame.sprite.Group() # For blink, that draw last
+    fake_buttons_far = pygame.sprite.Group() 
     fake_buttons_close = pygame.sprite.Group()
-    pervert_sprites = pygame.sprite.Group()
+    pervert_sprites = pygame.sprite.Group() # For sprites, what can move and pervert other sprite action
     screen = pygame.display.set_mode(constants.RESOLUTION)
-    button_colors = [i for i in range(10)]
+    
+    button_colors = [i for i in range(10)] # Need for random color of btn
     shuffle(button_colors)
 
     # Create every base sprites
@@ -92,6 +96,7 @@ if __name__ == "__main__":
     fake_template = load_image("fake_template.png")
     fake_template.set_alpha(0)
 
+    # Create sounds
     whispers = pygame.mixer.Sound("sounds/peak_word_whisp.ogg")
     s_rain = pygame.mixer.Sound("sounds/rain.ogg")
     s_rain.set_volume(0.05)
@@ -102,7 +107,7 @@ if __name__ == "__main__":
     words_group = []
 
     running = True
-
+    # Add all custom events into dict for easy geting from above
     constants.EVENTS["DISPLAYTEXTUPDATE"], constants.event_ctr = (
         pygame.USEREVENT + constants.event_ctr,
         constants.event_ctr + 1,
@@ -187,6 +192,7 @@ if __name__ == "__main__":
                 em.words_spawn = False
                 words_group.clear()
                 em.smth_started = False
+                whispers.stop()
 
             if em.words_spawn == False:
                 whispers.stop()
@@ -201,6 +207,8 @@ if __name__ == "__main__":
                 fake_template.set_alpha(0)
                 blink.no_blink = 5001
                 em.smth_started = False
+            
+            # Update with event 
             group_that_not_draw.update(event)
             all_sprites.update(event)
             fake_buttons_far.update(event)
@@ -210,11 +218,13 @@ if __name__ == "__main__":
 
         if em.spawn_buttons:
             poses = sample(constants.FAKE_BUTTONS_POS, 10)
+            # set pos for main button
             button.rect.topleft = poses[-1]
             if poses[-1][1] == constants.FAKE_BUTTONS_POS[0][1]:
                 fake_buttons_far.add(button)
             else:
                 fake_buttons_close.add(button)
+            # creating fake buttons
             for i in range(9):
                 if poses[i][1] == constants.FAKE_BUTTONS_POS[0][1]:
                     b = Button_class.Button(
@@ -242,6 +252,7 @@ if __name__ == "__main__":
             shuffle(button_colors)
             fake_template.set_alpha(255)
 
+        # Check is it time to start new event
         if blink.start_event == True:
             em.start_event(2)
             blink.start_event = False
@@ -255,21 +266,23 @@ if __name__ == "__main__":
         screen.blit(bg, (0, 0))
         screen.blit(fake_template, (288, 340))
 
-        # updating sprites if there is no new events
+        # Updating sprites if there is no new events
         all_sprites.update()
         blink_group.update()
         group_that_not_draw.update()
         pervert_sprites.update()
 
+        # Draw sprites
         all_sprites.draw(screen)
         fake_buttons_far.draw(screen)
         fake_buttons_close.draw(screen)
         pervert_sprites.draw(screen)
-
         for word in words_group:
             screen.blit(word[0], word[1])
+        
         blink_group.draw(screen)
-        # The development point of ending score
+
+        # Check is game over
         if display.get_score(1) == constants.BUTTON_PUSH_TIMES:
             termianate()
         if timer.get_display_time() == "0":
