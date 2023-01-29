@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # Create all groups and objects
     clock = pygame.time.Clock()
-    start_screen(clock)
+    #start_screen(clock)
     trash_group = pygame.sprite.Group() # For backsprites
     group_that_not_draw = pygame.sprite.Group() # For self blit sprites
     all_sprites = pygame.sprite.Group() # For sprites? that never move
@@ -171,6 +171,8 @@ if __name__ == "__main__":
                 rain.update(event)
             if event.type == constants.EVENTS["EVENTEND"]:
                 em.smth_started = False
+                if em.hold_started:
+                    em.hold_started = False
             if em.words_spawn and event.type == constants.EVENTS["WORDSPAWN"]:
                 surf = pygame.font.Font("fonts/rough.ttf", randint(20, 100)).render(
                     choice(constants.WORDS_POOL),
@@ -192,9 +194,7 @@ if __name__ == "__main__":
                 em.words_spawn = False
                 words_group.clear()
                 em.smth_started = False
-                whispers.stop()
-
-            if em.words_spawn == False:
+                em.whisp.stop()
                 whispers.stop()
 
             if (
@@ -209,6 +209,7 @@ if __name__ == "__main__":
                 em.smth_started = False
             
             # Update with event 
+            em.checker(event)
             group_that_not_draw.update(event)
             all_sprites.update(event)
             fake_buttons_far.update(event)
@@ -252,6 +253,10 @@ if __name__ == "__main__":
             shuffle(button_colors)
             fake_template.set_alpha(255)
 
+        if not em.words_spawn:
+            em.whisp.stop()
+            whispers.stop()
+
         # Check is it time to start new event
         if blink.start_event == True:
             em.start_event(2)
@@ -261,12 +266,13 @@ if __name__ == "__main__":
             em.start_event(1)
             button.start_event = False
 
-        em.checker()
+        
         trash_group.draw(screen)
         screen.blit(bg, (0, 0))
         screen.blit(fake_template, (288, 340))
 
         # Updating sprites if there is no new events
+        em.checker()
         all_sprites.update()
         blink_group.update()
         group_that_not_draw.update()

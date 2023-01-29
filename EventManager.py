@@ -20,14 +20,19 @@ class EventManager:
         self.screwdriver = screwdriver
         self.btn = button
         self.blink = blink
-
+        
+        self.whisp = pygame.mixer.Sound("sounds/start_word_whisp.ogg")
+        
         self.smth_started = False
+        self.btn_missed = False
+        self.hold_started = False
         self.blink_ctr = 0
         self.words_spawn = False
         self.spawn_buttons = False
         self.need_hold_btn = False
+        self.dont_push = False
 
-        self.blink_event_chanse = [i for i in range(3)]
+        self.blink_event_chanse = [i for i in range(5)]
         self.btn_event_chanse = [i for i in range(3)]
 
     def start_event(self, evtype: int):
@@ -38,68 +43,73 @@ class EventManager:
                         self.button_stuck,
                         self.hold_btn,
                         self.dont_push_btn,
-                        self.words,
+                        self.words
                     ]
                     choice(list_of_events)()
-                    self.smth_started = True
             if evtype == 2:
                 if choice(self.blink_event_chanse) == max(self.blink_event_chanse):
                     list_of_events = [self.move_screwdriver, self.fake_buttons, self.miss_btn]
                     choice(list_of_events)()
-                    self.smth_started = True
 
-    def checker(self):
+    def end_event(self):
+        pygame.event.post(pygame.event.Event(constants.EVENTS["EVENTEND"]))
+
+    def checker(self, *args):
         """Check all conditions of events"""
-        if self.need_hold_btn and not self.btn.is_touched:
-            self.btn.need_hold_btn = True
-            self.btn.hold_started = True
-            self.need_hold_btn = False
-
-        # print(self.btn.need_hold_btn, 0 < self.btn.holding_btn < 1000, not self.btn.is_touched, self.btn.hold_started)
-        if (
-            self.btn.need_hold_btn
-            and 0 < self.btn.holding_btn < 1000
-            and not self.btn.is_touched
-            and self.btn.hold_started
-        ):
+        if self.dont_push and self.btn.is_touched:
             self.turn_down_score(-3)
-            self.btn.set_to_default()
             self.display.set_display_text("PUSH THE BUTTON")
-            self.btn.need_hold_btn = False
+            self.dont_push = False
+            self.end_event()
 
-        if self.btn.dont_push and self.btn.is_touched:
-            self.turn_down_score(-3)
+        if args and args[0].type == constants.EVENTS["WAITFORBTN"] and self.dont_push:
+            self.dont_push = False
+            self.display.set_display_text("PUSH THE BUTTON")
             pygame.time.set_timer(constants.EVENTS["WAITFORBTN"], 0)
-            self.btn.dont_push = False
-            self.display.set_display_text("PUSH THE BUTTON")
-            self.smth_started = False
-        
-        if self.btn.is_broken and self.blink.holding_blink > 1600:
-            self.btn.set_to_default(False)
-            self.smth_started = False
+            self.end_event()
 
+        if self.need_hold_btn and not self.hold_started and self.btn.is_touched:
+            print(1)
+            self.btn.need_hold_btn = True
+            self.hold_started = True
+            self.need_hold_btn = False
+        
+        if self.hold_started and not self.btn.is_touched:
+            self.smth_started = False
+            self.hold_started = False
+            self.turn_down_score(-3)
+            self.btn.need_hold_btn = False
+            print(2)
+            self.display.set_display_text("PUSH THE BUTTON")
+        
+        if self.btn_missed and self.blink.holding_blink > 1500:
+            self.btn.set_to_default(False, False)
+            self.btn_missed = False
+            self.smth_started = False
+            self.btn.is_broken = False
+        
     def turn_down_score(self, shift: int):
         self.display.change_score(shift)
 
     # all of functions next is functions of events
     def dont_push_btn(self):
         self.display.set_display_text("DON'T PUSH THE BUTTON")
-        self.btn.dont_push = True
-        pygame.time.set_timer(constants.EVENTS["WAITFORBTN"], 2000)
+        self.dont_push = True
+        pygame.time.set_timer(constants.EVENTS["WAITFORBTN"], 1500)
+        self.smth_started = True
 
     def words(self):
         self.words_spawn = True
-        whisp = pygame.mixer.Sound("sounds/start_word_whisp.ogg")
-        whisp.set_volume(1)
-        whisp.play()
+        
+        self.whisp.set_volume(1)
+        self.whisp.play()
         pygame.time.set_timer(
-            constants.EVENTS["WHISPERS"], int(whisp.get_length() * 1000)
+            constants.EVENTS["WHISPERS"], int(self.whisp.get_length() * 1000)
         )
 
     def fake_buttons(self):
-        if not self.smth_started:
-            self.spawn_buttons = True
-            self.btn.fakes = True
+        self.spawn_buttons = True
+        self.smth_started = True
 
     def move_screwdriver(self):
         self.screwdriver.image = pygame.transform.rotate(
@@ -111,17 +121,18 @@ class EventManager:
             randrange(constants.RESOLUTION[0]),
             randrange(338, constants.RESOLUTION[1]),
         )
-        self.smth_started = False
 
     def button_stuck(self):
-        if not self.smth_started:
-            self.btn.is_stuck = True
+        self.btn.is_stuck = True
+        self.smth_started = True
 
     def hold_btn(self):
         self.display.set_display_text("HOLD THE BUTTON")
         self.need_hold_btn = True
+        self.smth_started = True
     
     def miss_btn(self):
-        if not self.smth_started:
-            self.btn.is_broken = True
-            self.btn.image.set_alpha(0)
+        self.btn_missed = True
+        self.smth_started = True
+        self.btn.is_broken = True
+        self.btn.image.set_alpha(0)
