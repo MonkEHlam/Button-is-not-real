@@ -18,7 +18,6 @@ pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
 flags_of_display = pygame.SCALED | pygame.FULLSCREEN
 
-
 def termianate():
     """Stop programm"""
     pygame.quit()
