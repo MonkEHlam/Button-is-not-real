@@ -22,4 +22,4 @@ class Timer:
         return str(self.display_time)
 
     def get_time(self) -> float:
-        return self.current_time / 1000 / 60
+        return round(self.current_time / 1000 / 60, 2)

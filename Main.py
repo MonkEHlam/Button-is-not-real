@@ -63,15 +63,12 @@ def start_screen(clock):
         clock.tick_busy_loop(constants.FPS)
 
 
-if __name__ == "__main__":
-    constants.EVENTS["DISPLAYTEXTUPDATE"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
+def Game(clock):
+    pygame.time.set_timer(constants.EVENTS["NEWEVENTS"], 50000)
+    pygame.time.set_timer(constants.EVENTS["DISPLAYTEXTUPDATE"], 20)
+    pygame.time.set_timer(constants.EVENTS["RAINUPDATE"], 40)
+    pygame.time.set_timer(constants.EVENTS["WORDSPAWN"], 5)
 
-    # Create all groups and objects
-    clock = pygame.time.Clock()
-    start_screen(clock)
     trash_group = pygame.sprite.Group()  # For backsprites
     group_that_not_draw = pygame.sprite.Group()  # For self blit sprites
     all_sprites = pygame.sprite.Group()  # For sprites? that never move
@@ -123,67 +120,6 @@ if __name__ == "__main__":
     words_group = []
     backswaped = False
     running = True
-    # Add all custom events into dict for easy geting from above
-    constants.EVENTS["DISPLAYTEXTUPDATE"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["RAINUPDATE"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["SCREWDRIVERANIMUPDATE"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["WORDSPAWN"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["FIXINGSTUCKEDBUTTON"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["WAITFORBTN"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["DELETEFAKES"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["FORSEDBLINK"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["EVENTEND"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["WHISPERS"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["SCOREDOWN"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["NEWEVENTS"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["RADIOCRACK"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    constants.EVENTS["BACKSWAP"], constants.event_ctr = (
-        pygame.USEREVENT + constants.event_ctr,
-        constants.event_ctr + 1,
-    )
-    pygame.time.set_timer(constants.EVENTS["NEWEVENTS"], 50000)
-    pygame.time.set_timer(constants.EVENTS["DISPLAYTEXTUPDATE"], 20)
-    pygame.time.set_timer(constants.EVENTS["RAINUPDATE"], 40)
-    pygame.time.set_timer(constants.EVENTS["WORDSPAWN"], 5)
 
     while running:
         clock.tick_busy_loop(constants.FPS)
@@ -333,7 +269,191 @@ if __name__ == "__main__":
 
         # Check is game over
         if display.get_score(1) == constants.BUTTON_PUSH_TIMES:
-            termianate()
+            trash_group.empty()
+            group_that_not_draw.empty()
+            all_sprites.empty()
+            pervert_sprites.empty()
+            blink_group.empty()
+            end_screen(clock, True, timer.get_time())
+            s_rain.stop()
+            s_bg.stop()
+            pygame.mixer.music.stop()
+
         if timer.get_display_time() == "0":
-            termianate()
+            trash_group.empty()
+            group_that_not_draw.empty()
+            all_sprites.empty()
+            pervert_sprites.empty()
+            blink_group.empty()
+            end_screen(clock, False, timer.get_time())
+            s_rain.stop()
+            s_bg.stop()
+            pygame.mixer.music.stop()
         pygame.display.flip()
+
+
+def end_screen(clock, is_win: bool, time=0.0):
+    screen = pygame.display.set_mode(constants.RESOLUTION, flags_of_display)
+    if is_win:
+        text_surface = pygame.font.Font("fonts/dialog.ttf", 30).render(
+            f"That was easy, isn't it? It took {str(time)}", True, (90, 90, 90)
+        )
+        text_rect = text_surface.get_rect()
+        text_rect.center = (
+            constants.RESOLUTION[0] * 0.5,
+            constants.RESOLUTION[1] * 0.4,
+        )
+
+        text_surface2 = pygame.font.Font("fonts/dialog.ttf", 30).render(
+            "If wonna work one more time, click R", True, (90, 90, 90)
+        )
+        text_rect2 = text_surface2.get_rect()
+        text_rect2.top = text_rect.bottom + 10
+        text_rect2.centerx = constants.RESOLUTION[0] / 2
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        return Game(clock)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        text_surface2 = pygame.font.Font("fonts/dialog.ttf", 30).render(
+                            "No?", True, (90, 90, 90)
+                        )
+                        text_rect2 = text_surface2.get_rect()
+                        text_rect2.top = text_rect.bottom + 10
+                        text_rect2.centerx = constants.RESOLUTION[0] / 2
+                        text_surface = pygame.font.Font("fonts/dialog.ttf", 30).render(
+                            "", True, (90, 90, 90)
+                        )
+                        s_shot = pygame.mixer.Sound("sounds/shot.ogg")
+                        s_shot.play()
+                        pygame.time.set_timer(constants.EVENTS["GAMEOVER"], 1500)
+                if event.type == constants.EVENTS["GAMEOVER"]:
+                    termianate()
+            screen.fill("white")
+            screen.blit(text_surface, text_rect)
+            screen.blit(text_surface2, text_rect2)
+            pygame.display.flip()
+            clock.tick_busy_loop(constants.FPS)
+    else:
+        swap = pygame.mixer.Sound("sounds/backswap.ogg")
+        swap.play()
+        pygame.time.set_timer(constants.EVENTS["GAMEOVER"], 2500)
+        waiting = True
+        hali = load_image("hali.png")
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == constants.EVENTS["GAMEOVER"]:
+                    pygame.time.set_timer(constants.EVENTS["GAMEOVER"], 0)
+                    waiting = False
+                    whisp = pygame.mixer.Sound("sounds/whisp.ogg")
+                    whisp.play()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        termianate()
+            screen.blit(hali, (0, 0))
+            pygame.display.flip()
+
+        text_surface = pygame.font.Font("fonts/rough.ttf", 60).render(
+            f"GAME OVER", True, (130, 130, 130)
+        )
+        text_rect = text_surface.get_rect()
+        text_rect = text_surface.get_rect()
+        text_rect.center = (
+            constants.RESOLUTION[0] * 0.5,
+            constants.RESOLUTION[1] * 0.4,
+        )
+
+        text_surface2 = pygame.font.Font("fonts/rough.ttf", 30).render(
+            "Click R to restart", True, (130, 130, 130)
+        )
+        text_rect2 = text_surface2.get_rect()
+        text_rect2 = text_surface2.get_rect()
+        text_rect2.top = text_rect.bottom + 10
+        text_rect2.centerx = constants.RESOLUTION[0] / 2
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        return Game(clock)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        s_shot.play()
+                        termianate()
+            screen.fill("black")
+            screen.blit(text_surface, text_rect)
+            screen.blit(text_surface2, text_rect2)
+            pygame.display.flip()
+            clock.tick_busy_loop(constants.FPS)
+
+
+if __name__ == "__main__":
+    # Add all custom events into dict for easy geting from above
+    constants.EVENTS["DISPLAYTEXTUPDATE"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["RAINUPDATE"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["SCREWDRIVERANIMUPDATE"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["WORDSPAWN"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["FIXINGSTUCKEDBUTTON"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["WAITFORBTN"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["DELETEFAKES"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["FORSEDBLINK"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["EVENTEND"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["WHISPERS"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["SCOREDOWN"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["NEWEVENTS"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["RADIOCRACK"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["BACKSWAP"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+    constants.EVENTS["GAMEOVER"], constants.event_ctr = (
+        pygame.USEREVENT + constants.event_ctr,
+        constants.event_ctr + 1,
+    )
+
+    # Create all groups and objects
+    clock = pygame.time.Clock()
+    start_screen(clock)
+    Game(clock)
